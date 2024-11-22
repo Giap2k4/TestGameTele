@@ -153,7 +153,7 @@
 
           const userJson = Json.user;
 
-          unityInstance.SendMessage('GameController', 'GetUserData', userJson);
+          unityInstance.SendMessage('GameController', 'GetUserData', JSON.stringify(userJson));
 
           console.log(userJson);
         } else {
