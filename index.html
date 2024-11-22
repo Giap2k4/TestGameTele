@@ -27,8 +27,6 @@
       </div>
     </div>
 
-    <script async src="https://web.telegram.org/js/telegram-web-app.js"></script>
-
     <script type="module">
 
       var unityInstance; // Khai báo biến toàn cục cho unityInstance
@@ -147,23 +145,28 @@
         });
       }
 
+      import { TWASDK } from "@teledeveloperz/twa-sdk";
+      const sdk = new TWASDK(window.Telegram.WebApp.initData);
+
       window.SetUserTelegram = function() {
         // const params = new URLSearchParams(window.location.search);
+        
         const statusElement = document.getElementById('status');
+        statusElement.textContent = sdk.user.getFullName()
 
-        if (typeof Telegram !== 'undefined' && Telegram.WebApp && Telegram.WebApp.initDataUnsafe) {
-          const userTele = Telegram.WebApp.initDataUnsafe;
+        // if (typeof Telegram !== 'undefined' && Telegram.WebApp && Telegram.WebApp.initDataUnsafe) {
+        //   const userTele = Telegram.WebApp.initDataUnsafe;
           
-          const userJson = userTele.user;
-          statusElement.textContent = "Đang chạy trong telegram";
+        //   const userJson = userTele.user;
+        //   statusElement.textContent = "Đang chạy trong telegram";
 
-          unityInstance.SendMessage('GameController', 'GetUserData', JSON.stringify(userJson));
+        //   unityInstance.SendMessage('GameController', 'GetUserData', JSON.stringify(userJson));
 
-          console.log(userJson);
-        } else {
-          statusElement.textContent = "Không phải trong telegram";
-          console.log('Mở link ở web chứ không phải Telegram');
-        }
+        //   console.log(userJson);
+        // } else {
+        //   statusElement.textContent = "Không phải trong telegram";
+        //   console.log('Mở link ở web chứ không phải Telegram');
+        // }
       }
 
 
