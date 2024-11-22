@@ -149,7 +149,9 @@
           const userTele = Telegram.WebApp.initDataUnsafe;
           
           const decodedData = decodeURIComponent(userTele);
-          const userJson = JSON.stringify(decodedData);
+          const Json = JSON.parse(decodedData);
+
+          const userJson = Json.user;
 
           unityInstance.SendMessage('GameController', 'GetUserData', userJson);
 
