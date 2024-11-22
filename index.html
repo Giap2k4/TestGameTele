@@ -152,7 +152,7 @@
         
         const statusElement = document.getElementById('status');
 
-        if (typeof Telegram !== 'undefined') {
+        if (Telegram.WebApp.initDataUnsafe) {
           statusElement.textContent = "Đang chạy trong telegram";
         } 
 
