@@ -150,10 +150,8 @@
         if (typeof Telegram !== 'undefined' && Telegram.WebApp || params.has('tgWebApp') || params.has('initData')) {
           const userTele = Telegram.WebApp.initDataUnsafe;
           
-          const decodedData = decodeURIComponent(userTele);
-          const Json = JSON.parse(decodedData);
-
-          const userJson = Json.user;
+          const decodedData = JSON.stringify(userTele);
+          const userJson = decodedData.user;
 
           unityInstance.SendMessage('GameController', 'GetUserData', JSON.stringify(userJson));
 
