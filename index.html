@@ -10,6 +10,9 @@
   <body>
     <div id="unity-container" class="unity-desktop">
       <canvas id="unity-canvas" width=540 height=960 tabindex="-1"></canvas>
+
+      <h1 id="status">Đang kiểm tra môi trường Telegram...</h1>
+
       <div id="unity-loading-bar">
         <div id="unity-logo"></div>
         <div id="unity-progress-bar-empty">
@@ -146,16 +149,19 @@
 
       window.SetUserTelegram = function() {
         const params = new URLSearchParams(window.location.search);
-        
+        const statusElement = document.getElementById('status');
+
         if (typeof Telegram !== 'undefined' && Telegram.WebApp || params.has('tgWebApp') || params.has('initData')) {
           const userTele = Telegram.WebApp.initDataUnsafe;
           
           const userJson = userTele.user;
+          statusElement.textContent = "Đang chạy trong telegram";
 
           unityInstance.SendMessage('GameController', 'GetUserData', JSON.stringify(userJson));
 
           console.log(userJson);
         } else {
+          statusElement.textContent = "Không phải trong telegram";
           console.log('Mở link ở web chứ không phải Telegram');
         }
       }
