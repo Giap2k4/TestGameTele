@@ -149,26 +149,20 @@
 
 
       window.SetUserTelegram = function() {
-        
-        const statusElement = document.getElementById('status');
-
 
         if (typeof Telegram !== 'undefined' && Telegram.WebApp && Telegram.WebApp.initDataUnsafe) {
           const userTele = Telegram.WebApp.initDataUnsafe;
           
           const userJson = userTele.user;
-          statusElement.textContent = "Đang chạy trong telegram";
 
           unityInstance.SendMessage('GameController', 'GetUserData', JSON.stringify(userJson));
 
           console.log(userJson);
-        } else {
-          statusElement.textContent = "Không phải trong telegram";
-          console.log('Mở link ở web chứ không phải Telegram');
         }
       }
 
 
     </script>
+    
   </body>
 </html>
