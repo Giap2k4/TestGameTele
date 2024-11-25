@@ -28,7 +28,8 @@
     </div>
 
     <script type="text/javascript" src="https://telegram.org/js/telegram-web-app.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.21.0/dist/umd/supabase.min.js"></script>
+    
     <script type="module">
 
       var unityInstance; // Khai báo biến toàn cục cho unityInstance
@@ -103,26 +104,98 @@
 
       document.body.appendChild(script);
 
-  // Import the functions you need from the SDKs you need
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-      import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-analytics.js";
-      import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js"; // realtime
-  
-      const firebaseConfig = {
-        apiKey: "AIzaSyDYWWDuLKwR2oUTW2TKAXACjCV8tK51Lyw",
-        authDomain: "gametele-6adcf.firebaseapp.com",
-        databaseURL: "https://gametele-6adcf-default-rtdb.asia-southeast1.firebasedatabase.app",
-        projectId: "gametele-6adcf",
-        storageBucket: "gametele-6adcf.firebasestorage.app",
-        messagingSenderId: "956268781399",
-        appId: "1:956268781399:web:0b76cfcdd16bf72d7ee812",
-        measurementId: "G-0M8SKDJ700"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+  // Initialize the JS client
+    // import { createClient } from '@supabase/supabase-js'
+    const supabase = createClient("https://dawzbndfboylpbshjcbv.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRhd3pibmRmYm95bHBic2hqY2J2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzE1ODM2OTUsImV4cCI6MjA0NzE1OTY5NX0.JNLeieNFDZ7Bmpkl492Ik1dkUOCiCDTNvqO7jv1dYP8");
+
+    let activeChannels = {};
+
+    // Create a function to handle inserts
+    window.DataRealTimeAttackById = function(id) {
+      const handleUpdates = (payload) => {
+      const id = payload.new.id;
+      const dataNew = payload.new.hp;
+      const dataOld = payload.old.hp;
+
+      const dataObj = {
+        id: id,
+        hpNew: dataNew,
+        hpOld: dataOld
       };
 
-      // Initialize Firebase
-      const app = initializeApp(firebaseConfig);
-      const analytics = getAnalytics(app);
-      const database = getDatabase(app);
+      const jsonData = JSON.stringify(dataObj);
+
+      unityInstance.SendMessage('GameController', 'DataRealTimeAttack', jsonData);
+    }
+
+    // Listen to inserts
+    const channel = supabase
+      .channel('users')
+      .on('postgres_changes', 
+          { 
+            event: 'UPDATE', 
+            schema: 'public', 
+            table: 'users',
+            filter: 'id=eq.' + id // Chỉ lắng nghe thay đổi của user có id = 1
+          }, 
+          handleUpdates)
+      .subscribe();
+
+      activeChannels[id] = channel;
+
+    }
+
+    window.stopDataRealTimeAttackById = function(id) {
+      const channel = activeChannels[id];
+      if (channel) {
+        // Hủy đăng ký kênh
+        channel.unsubscribe();
+        delete activeChannels[id]; // Xóa khỏi danh sách activeChannels
+      } 
+    }
 
 
 
@@ -133,33 +206,33 @@
 
 
 
-      // Định nghĩa hàm GetUserData để gọi Unity sau khi unityInstance đã được khởi tạo
-      window.GetUserData = function (idString) {
-        const userData = ref(database, '/users/' + idString)
-        
-        onValue(userData, (snapshot) => {
-          if (snapshot.exists()) {
-            const userDataFb = snapshot.val();
-            const userDataStr = JSON.stringify(userDataFb);
-
-            unityInstance.SendMessage('GameController', 'GetUserData', userDataStr);
-          }
-        });
-      }
 
 
-      window.SetUserTelegram = function() {
 
-        if (typeof Telegram !== 'undefined' && Telegram.WebApp && Telegram.WebApp.initDataUnsafe) {
-          const userTele = Telegram.WebApp.initDataUnsafe;
+
+
+
+
+
+
+
+
+
+
+
+
+      // window.SetUserTelegram = function() {
+
+      //   if (typeof Telegram !== 'undefined' && Telegram.WebApp && Telegram.WebApp.initDataUnsafe) {
+      //     const userTele = Telegram.WebApp.initDataUnsafe;
           
-          const userJson = userTele.user;
+      //     const userJson = userTele.user;
 
-          unityInstance.SendMessage('GameController', 'GetUserData', JSON.stringify(userJson));
+      //     unityInstance.SendMessage('GameController', 'GetUserData', JSON.stringify(userJson));
 
-          console.log(userJson);
-        }
-      }
+      //     console.log(userJson);
+      //   }
+      // }
 
 
     </script>
