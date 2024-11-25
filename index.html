@@ -28,7 +28,7 @@
     </div>
 
     <script type="text/javascript" src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.21.0/dist/umd/supabase.min.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.21.0/dist/umd/supabase.min.js"></script> -->
     
     <script type="module">
 
@@ -150,7 +150,7 @@
   // Initialize the JS client
     // import { createClient } from '@supabase/supabase-js'
     // const { createClient } = supabase;
-    const createClient = supabase.createClient;
+    import { createClient } from '@supabase/supabase-js';
     const supabase = createClient("https://dawzbndfboylpbshjcbv.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRhd3pibmRmYm95bHBic2hqY2J2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzE1ODM2OTUsImV4cCI6MjA0NzE1OTY5NX0.JNLeieNFDZ7Bmpkl492Ik1dkUOCiCDTNvqO7jv1dYP8");
 
     let activeChannels = {};
