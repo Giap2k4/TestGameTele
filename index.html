@@ -6,6 +6,7 @@
     <title>Unity WebGL Player | GameTele_01</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.0.0/dist/umd/supabase.min.js"></script>
   </head>
   <body>
     <div id="unity-container" class="unity-desktop">
@@ -28,7 +29,7 @@
     </div>
 
     <script type="text/javascript" src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> -->
     
     <script type="module">
 
@@ -148,8 +149,8 @@
 
       
   // Initialize the JS client
-    // import { createClient } from '@supabase/supabase-js'
-    const supabase = createClient("https://dawzbndfboylpbshjcbv.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRhd3pibmRmYm95bHBic2hqY2J2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzE1ODM2OTUsImV4cCI6MjA0NzE1OTY5NX0.JNLeieNFDZ7Bmpkl492Ik1dkUOCiCDTNvqO7jv1dYP8");
+    // import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+    const supabase = supabase.createClient("https://dawzbndfboylpbshjcbv.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRhd3pibmRmYm95bHBic2hqY2J2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzE1ODM2OTUsImV4cCI6MjA0NzE1OTY5NX0.JNLeieNFDZ7Bmpkl492Ik1dkUOCiCDTNvqO7jv1dYP8");
 
     let activeChannels = {};
 
