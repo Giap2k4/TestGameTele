@@ -175,7 +175,7 @@
 
     // Listen to inserts
     const channel = supabase
-      .channel('users')
+      .channel('users_' + id)
       .on('postgres_changes', 
           { 
             event: 'UPDATE', 
