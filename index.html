@@ -224,18 +224,18 @@
 
 
 
-      // window.SetUserTelegram = function() {
+      window.SetUserTelegram = function() {
 
-      //   if (typeof Telegram !== 'undefined' && Telegram.WebApp && Telegram.WebApp.initDataUnsafe) {
-      //     const userTele = Telegram.WebApp.initDataUnsafe;
+        if (typeof Telegram !== 'undefined' && Telegram.WebApp && Telegram.WebApp.initDataUnsafe) {
+          const userTele = Telegram.WebApp.initDataUnsafe;
           
-      //     const userJson = userTele.user;
+          const userJson = userTele.user;
 
-      //     unityInstance.SendMessage('GameController', 'GetUserData', JSON.stringify(userJson));
+          unityInstance.SendMessage('GameController', 'GetUserData', JSON.stringify(userJson));
 
-      //     console.log(userJson);
-      //   }
-      // }
+          console.log(userJson);
+        }
+      }
 
 
     </script>
