@@ -23,6 +23,19 @@
         <div id="unity-build-title">GameTele</div>
       </div>
     </div>
+
+    <style>
+      #unity-canvas {
+        width: 100%; /* Đảm bảo canvas chiếm toàn bộ chiều ngang */
+        height: auto; /* Giữ tỉ lệ gốc 540x960 */
+        max-width: 540px; /* Giới hạn chiều rộng tối đa */
+        max-height: 960px; /* Giới hạn chiều cao tối đa */
+        margin: auto; /* Canh giữa trên màn hình */
+        display: block;
+      }
+    </style>
+    
+
     <script>
 
       var container = document.querySelector("#unity-container");
