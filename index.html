@@ -25,6 +25,29 @@
     </div>
 
     <style>
+      body {
+          margin: 0;
+          overflow: hidden; /* Tránh thanh cuộn */
+      }
+  
+      #gameContainer {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+      }
+  
+      canvas {
+          max-width: 540px; /* Giới hạn kích thước chiều rộng */
+          max-height: 920px; /* Giới hạn kích thước chiều cao */
+          width: 100%; /* Tự động co giãn */
+          height: auto; /* Giữ tỷ lệ */
+      }
+  </style>
+  
+
+    <style>
       #unity-canvas {
         width: 100%; /* Đảm bảo canvas chiếm toàn bộ chiều ngang */
         height: auto; /* Giữ tỉ lệ gốc 540x960 */
