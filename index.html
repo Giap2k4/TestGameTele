@@ -3,13 +3,17 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Unity WebGL Player | GameTele</title>
+    <title>Unity WebGL Player | GameTele_01</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
+    <!-- <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.0.0/dist/umd/supabase.min.js"></script> -->
   </head>
   <body>
     <div id="unity-container" class="unity-desktop">
       <canvas id="unity-canvas" width=324 height=576 tabindex="-1"></canvas>
+
+      <h1 id="status">Đang kiểm tra môi trường Telegram...</h1>
+
       <div id="unity-loading-bar">
         <div id="unity-logo"></div>
         <div id="unity-progress-bar-empty">
@@ -20,14 +24,16 @@
       <div id="unity-footer">
         <div id="unity-webgl-logo"></div>
         <div id="unity-fullscreen-button"></div>
-        <div id="unity-build-title">GameTele</div>
+        <div id="unity-build-title">GameTele_01</div>
       </div>
     </div>
 
     <script type="text/javascript" src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> -->
+    
+    <script type="module">
 
-    <script>
-      var unityInstance;
+      var unityInstance; // Khai báo biến toàn cục cho unityInstance
 
       var container = document.querySelector("#unity-container");
       var canvas = document.querySelector("#unity-canvas");
@@ -100,18 +106,139 @@
       document.body.appendChild(script);
 
 
-      // Lấy tên và ID telegram
-      window.SetUserTelegram = function() {
 
-        if (typeof Telegram !== 'undefined' && Telegram.WebApp && Telegram.WebApp.initDataUnsafe) {
-          const userTele = Telegram.WebApp.initDataUnsafe;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+  // Initialize the JS client
+    // import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+    const supabase = createClient("https://dawzbndfboylpbshjcbv.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRhd3pibmRmYm95bHBic2hqY2J2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzE1ODM2OTUsImV4cCI6MjA0NzE1OTY5NX0.JNLeieNFDZ7Bmpkl492Ik1dkUOCiCDTNvqO7jv1dYP8");
+
+    let activeChannels = {};
+
+    // Create a function to handle inserts
+    window.DataRealTimeAttackById = function(id) {
+      const handleUpdates = (payload) => {
+      const id = payload.new.id;
+      const dataNew = payload.new.hp;
+      const dataOld = payload.old.hp;
+
+      const dataObj = {
+        id: id,
+        hpNew: dataNew,
+        hpOld: dataOld
+      };
+
+      const jsonData = JSON.stringify(dataObj);
+
+      unityInstance.SendMessage('GameController', 'DataRealTimeAttack', jsonData);
+    }
+
+    // Listen to inserts
+    const channel = supabase
+      .channel('users_' + id)
+      .on('postgres_changes', 
+          { 
+            event: 'UPDATE', 
+            schema: 'public', 
+            table: 'users',
+            filter: 'id=eq.' + id // Chỉ lắng nghe thay đổi của user có id = 1
+          }, 
+          handleUpdates)
+      .subscribe();
+
+      activeChannels[id] = channel;
+      console.log(activeChannels);
+
+    }
+
+    window.stopDataRealTimeAttackById = function(id) {
+      const channel = activeChannels[id];
+      if (channel) {
+        // Hủy đăng ký kênh
+        channel.unsubscribe();
+        delete activeChannels[id]; // Xóa khỏi danh sách activeChannels
+      } 
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      // window.SetUserTelegram = function() {
+
+      //   if (typeof Telegram !== 'undefined' && Telegram.WebApp && Telegram.WebApp.initDataUnsafe) {
+      //     const userTele = Telegram.WebApp.initDataUnsafe;
           
-          const userJson = userTele.user;
+      //     const userJson = userTele.user;
 
-          unityInstance.SendMessage('GameController', 'GetUserData', JSON.stringify(userJson));
-        }
-      }
+      //     unityInstance.SendMessage('GameController', 'GetUserData', JSON.stringify(userJson));
+
+      //     console.log(userJson);
+      //   }
+      // }
+
 
     </script>
+    
   </body>
 </html>
