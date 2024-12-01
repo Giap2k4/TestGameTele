@@ -230,13 +230,13 @@
 
           const { data, error } = await supabase
           .from('users') // Tên bảng trong Supabase
-          .select('id')
-          .eq('id', userId);
+          .select('telegram_id')
+          .eq('telegram_id', userId);
 
           if (data.length === 0) {
             const { insertError } = await supabase
               .from('users')
-              .insert([{ id: userId, username: userUN }]);
+              .insert([{ telegram_id: userId, username: userUN }]);
           }
 
           unityInstance.SendMessage('GameController', 'GetUserData', JSON.stringify(userJson));
