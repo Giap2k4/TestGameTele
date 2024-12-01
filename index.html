@@ -147,7 +147,7 @@
       
   // Initialize the JS client
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-    const supabase = createClient("https://dawzbndfboylpbshjcbv.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRhd3pibmRmYm95bHBic2hqY2J2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzE1ODM2OTUsImV4cCI6MjA0NzE1OTY5NX0.JNLeieNFDZ7Bmpkl492Ik1dkUOCiCDTNvqO7jv1dYP8");
+    const supabase = createClient("https://stahfcwwdbexoaqgnbld.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0YWhmY3d3ZGJleG9hcWduYmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMwNjM1MjgsImV4cCI6MjA0ODYzOTUyOH0.RWz8acwJRm1W-tvIkyToKk0C3l0Xu2pa8LZ1S1V7ZY4");
 
     let activeChannels = {};
 
@@ -219,16 +219,28 @@
 
 
 
-      window.SetUserTelegram = function() {
+      window.SetUserTelegram = async function() {
 
         if (typeof Telegram !== 'undefined' && Telegram.WebApp && Telegram.WebApp.initDataUnsafe) {
           const userTele = Telegram.WebApp.initDataUnsafe;
           
           const userJson = userTele.user;
+          const userId = userJson.id;
+          const userUN = userJson.first_name;
+
+          const { data, error } = await supabase
+          .from('users') // Tên bảng trong Supabase
+          .select('id')
+          .eq('id', userId);
+
+          if (data.length === 0) {
+            const { insertError } = await supabase
+              .from('users')
+              .insert([{ id: userId, username: userUN }]);
+          }
 
           unityInstance.SendMessage('GameController', 'GetUserData', JSON.stringify(userJson));
 
-          console.log(userJson);
         }
       }
 
