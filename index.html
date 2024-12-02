@@ -222,9 +222,10 @@
           const userTele = Telegram.WebApp.initDataUnsafe;
 
           const initData = Telegram.WebApp.initData;
+          const decodedInitData = decodeURIComponent(initData);
           const userJson = userTele.user;
 
-          unityInstance.SendMessage('GameController', 'GetInitData', JSON.stringify(initData));
+          unityInstance.SendMessage('GameController', 'GetInitData', JSON.stringify(decodedInitData));
           unityInstance.SendMessage('GameController', 'GetUser', JSON.stringify(userJson));
         }
       }
