@@ -221,7 +221,7 @@
         if (typeof Telegram !== 'undefined' && Telegram.WebApp && Telegram.WebApp.initDataUnsafe) {
           const userTele = Telegram.WebApp.initDataUnsafe;
 
-          const initData = webApp.initData;
+          const initData = Telegram.WebApp.initData;
           const userJson = userTele.user;
 
           unityInstance.SendMessage('GameController', 'GetInitData', JSON.stringify(initData));
