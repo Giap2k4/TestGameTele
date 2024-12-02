@@ -217,32 +217,42 @@
 
 
 
-
-
-      window.SetUserTelegram = async function() {
-
+      window.SetUserTelegram = function() {
         if (typeof Telegram !== 'undefined' && Telegram.WebApp && Telegram.WebApp.initDataUnsafe) {
           const userTele = Telegram.WebApp.initDataUnsafe;
-          
+
+          const initData = webApp.initData;
           const userJson = userTele.user;
-          const userId = userJson.id;
-          const userUN = userJson.first_name;
 
-          const { data, error } = await supabase
-          .from('users') // Tên bảng trong Supabase
-          .select('telegram_id')
-          .eq('telegram_id', userId);
-
-          if (data.length === 0) {
-            const { insertError } = await supabase
-              .from('users')
-              .insert([{ telegram_id: userId, username: userUN }]);
-          }
-
-          unityInstance.SendMessage('GameController', 'GetUserData', JSON.stringify(userJson));
-
+          unityInstance.SendMessage('GameController', 'GetInitData', JSON.stringify(initData));
+          unityInstance.SendMessage('GameController', 'GetUser', JSON.stringify(userJson));
         }
       }
+
+      // window.SetUserTelegram = async function() {
+
+      //   if (typeof Telegram !== 'undefined' && Telegram.WebApp && Telegram.WebApp.initDataUnsafe) {
+      //     const userTele = Telegram.WebApp.initDataUnsafe;
+          
+      //     const userJson = userTele.user;
+      //     const userId = userJson.id;
+      //     const userUN = userJson.first_name;
+
+      //     const { data, error } = await supabase
+      //     .from('users') // Tên bảng trong Supabase
+      //     .select('telegram_id')
+      //     .eq('telegram_id', userId);
+
+      //     if (data.length === 0) {
+      //       const { insertError } = await supabase
+      //         .from('users')
+      //         .insert([{ telegram_id: userId, username: userUN }]);
+      //     }
+
+      //     unityInstance.SendMessage('GameController', 'GetUserData', JSON.stringify(userJson));
+
+      //   }
+      // }
 
 
     </script>
