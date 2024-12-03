@@ -9,7 +9,14 @@
   </head>
   <body>
     <div id="unity-container" class="unity-desktop">
-      <canvas id="unity-canvas" width=324 height=576 tabindex="-1"></canvas>
+      <!-- <canvas id="unity-canvas" width=324 height=576 tabindex="-1"></canvas> -->
+      <div id="text_1" style="width: 100%; height: 50%;">
+
+      </div>
+
+      <div id="text_2" style="width: 100%; height: 50%;">
+
+      </div>
 
       <div id="unity-loading-bar">
         <div id="unity-logo"></div>
@@ -225,8 +232,13 @@
           const decodedInitData = decodeURIComponent(initData);
           const userJson = userTele.user;
 
-          unityInstance.SendMessage('GameController', 'GetInitData', JSON.stringify(decodedInitData));
-          unityInstance.SendMessage('GameController', 'GetUser', JSON.stringify(userJson));
+          const text_1 = document.getElementById("text_1");
+          const text_2 = document.getElementById("text_2");
+
+          text_1.innerText = "initData: " + decodedInitData;
+          text_2.innerText = "User: " + userJson;
+          // unityInstance.SendMessage('GameController', 'GetInitData', JSON.stringify(decodedInitData));
+          // unityInstance.SendMessage('GameController', 'GetUser', JSON.stringify(userJson));
         }
       }
 
