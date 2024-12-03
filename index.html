@@ -224,51 +224,51 @@
 
 
 
-      window.SetUserTelegram = function() {
-        if (typeof Telegram !== 'undefined' && Telegram.WebApp && Telegram.WebApp.initDataUnsafe) {
-          const userTele = Telegram.WebApp.initDataUnsafe;
-          const userJson = userTele.user;
-          
-          const initData = Telegram.WebApp.initData;
-          const decodedInitData = decodeURIComponent(initData);
-          
-
-          const text_1 = document.getElementById("text_1");
-          const text_2 = document.getElementById("text_2");
-
-          text_1.innerText = "InitData: " + decodedInitData;
-          text_2.innerText = "User: " + JSON.stringify(userJson, null, 2);
-          // unityInstance.SendMessage('GameController', 'GetInitData', JSON.stringify(decodedInitData));
-          // unityInstance.SendMessage('GameController', 'GetUser', JSON.stringify(userJson));
-        }
-      }
-
-      SetUserTelegram();
-
-      // window.SetUserTelegram = async function() {
-
+      // window.SetUserTelegram = function() {
       //   if (typeof Telegram !== 'undefined' && Telegram.WebApp && Telegram.WebApp.initDataUnsafe) {
       //     const userTele = Telegram.WebApp.initDataUnsafe;
-          
       //     const userJson = userTele.user;
-      //     const userId = userJson.id;
-      //     const userUN = userJson.first_name;
+          
+      //     const initData = Telegram.WebApp.initData;
+      //     const decodedInitData = decodeURIComponent(initData);
+          
 
-      //     const { data, error } = await supabase
-      //     .from('users') // Tên bảng trong Supabase
-      //     .select('telegram_id')
-      //     .eq('telegram_id', userId);
+      //     const text_1 = document.getElementById("text_1");
+      //     const text_2 = document.getElementById("text_2");
 
-      //     if (data.length === 0) {
-      //       const { insertError } = await supabase
-      //         .from('users')
-      //         .insert([{ telegram_id: userId, username: userUN }]);
-      //     }
-
-      //     unityInstance.SendMessage('GameController', 'GetUserData', JSON.stringify(userJson));
-
+      //     text_1.innerText = "InitData: " + decodedInitData;
+      //     text_2.innerText = "User: " + JSON.stringify(userJson, null, 2);
+      //     // unityInstance.SendMessage('GameController', 'GetInitData', JSON.stringify(decodedInitData));
+      //     // unityInstance.SendMessage('GameController', 'GetUser', JSON.stringify(userJson));
       //   }
       // }
+
+      // SetUserTelegram();
+
+      window.SetUserTelegram = async function() {
+
+        if (typeof Telegram !== 'undefined' && Telegram.WebApp && Telegram.WebApp.initDataUnsafe) {
+          const userTele = Telegram.WebApp.initDataUnsafe;
+          
+          const userJson = userTele.user;
+          const userId = userJson.id;
+          const userUN = userJson.first_name;
+
+          const { data, error } = await supabase
+          .from('users') // Tên bảng trong Supabase
+          .select('telegram_id')
+          .eq('telegram_id', userId);
+
+          if (data.length === 0) {
+            const { insertError } = await supabase
+              .from('users')
+              .insert([{ telegram_id: userId, username: userUN }]);
+          }
+
+          unityInstance.SendMessage('GameController', 'GetUserData', JSON.stringify(userJson));
+
+        }
+      }
 
 
     </script>
