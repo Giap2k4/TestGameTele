@@ -289,11 +289,17 @@
             headers: headers,
             body: JSON.stringify(data)
           });
-          const responseData = await response.json();
-          resultSeason = "Json: "+  responseData;
+
+          if (response.ok) {
+            const responseData = await response.json();
+            resultSeason = "Json: "+  responseData;
+          } else {
+            resultSeason = `Request failed: ${response.status}`;
+          }
+          
           // resultSeason = 1;
         } catch (error) {
-          resultSeason = `Request failed: ${response.status}`;
+          resultSeason = `Request failed: ${error.message}`;
         }
       }
       
@@ -311,10 +317,16 @@
             headers: headers,
             body: JSON.stringify(data)
           });
-          const responseData = await response.json();
-          resultMintCat = "Json: "+ responseData;
+
+          if (response.ok) {
+            const responseData = await response.json();
+            resultMintCat = "Json: "+ responseData;
+          } else {
+            resultMintCat = `Request failed: ${response.status}`;
+          }
+          
         } catch (error) {
-          resultMintCat = `Request failed: ${response.status}`;
+          resultMintCat = `Request failed: ${error.message}`;
         }
       }
 
