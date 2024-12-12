@@ -247,8 +247,8 @@
       // SetUserTelegram();
 
       var initData;
-      var userId_1;
-      var userName_1;
+      var userIdSeason;
+      var userNameSeason;
       var resultSeason;
       var resultMintCat;
 
@@ -260,10 +260,10 @@
 
           const userJson = userTele.user;
           const userId = userJson.id;
-          userId_1 = userId;
+          userIdSeason = userId;
 
           const userUN = userJson.first_name;
-          userName_1 = userUN;
+          userNameSeason = userUN;
 
           const { data, error } = await supabase
           .from('users') // Tên bảng trong Supabase
@@ -284,11 +284,11 @@
 
       // Join-Season
 
-      const base_url = "https://stahfcwwdbexoaqgnbld.supabase.co/functions/v1"
+      const base_url = "https://stahfcwwdbexoaqgnbld.supabase.co/functions/v1";
       const headers = {
         "Content-Type": "application/json",
         "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0YWhmY3d3ZGJleG9hcWduYmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMwNjM1MjgsImV4cCI6MjA0ODYzOTUyOH0.RWz8acwJRm1W-tvIkyToKk0C3l0Xu2pa8LZ1S1V7ZY4"
-      } 
+      }; 
 
       window.Test_Join_Season = async function() {
           const url = base_url + "/join-season";
@@ -300,9 +300,9 @@
 
           try {
               const response = await axios.post(url, data, { headers });
-              resultSeason = 1;
+              // resultSeason = 1;
           } catch (error) {
-              resultSeason = 0;
+              resultSeason = error;
           }
       }
 
@@ -315,9 +315,9 @@
 
         try {
             const response = await axios.post(url, data, { headers });
-            resultMintCat = 1;
+            // resultMintCat = 1;
         } catch (error) {
-            resultMintCat = 0;
+            resultMintCat = error;
         }
       }
 
