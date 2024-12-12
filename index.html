@@ -283,26 +283,19 @@
             "username": userNameSeason
           };
 
-        try {
-          const response = await fetch(url, {
-            method: 'POST',
-            headers: headers,
-            body: JSON.stringify(data)
-          });
-
-          if (response.ok) {
-            const responseData = await response.json();
-            resultSeason = "Json: "+  responseData;
-          } else {
-            resultSeason = `Request failed: ${response.status}`;
+          try {
+              const response = await axios.post(url, data, { headers });
+              // resultSeason = 1;
+          } catch (error) {
+            if (error.response) {
+              resultSeason = error.response.data; // Lấy dữ liệu từ response
+            } else if (error.request) {
+              resultSeason = "Request failed"; // Yêu cầu không nhận được phản hồi
+            } else {
+              resultSeason = "Network or other error"; // Lỗi mạng hoặc lỗi không xác định
+            }
           }
-          
-          // resultSeason = 1;
-        } catch (error) {
-          resultSeason = `Request failed: ${error.message}`;
-        }
       }
-      
 
       window.Test_Mint_Cat = async function() {
         const url = `${base_url}/mint-cat`;
@@ -312,21 +305,16 @@
         };
 
         try {
-          const response = await fetch(url, {
-            method: 'POST',
-            headers: headers,
-            body: JSON.stringify(data)
-          });
-
-          if (response.ok) {
-            const responseData = await response.json();
-            resultMintCat = "Json: "+ responseData;
-          } else {
-            resultMintCat = `Request failed: ${response.status}`;
-          }
-          
+            const response = await axios.post(url, data, { headers });
+            // resultMintCat = 1;
         } catch (error) {
-          resultMintCat = `Request failed: ${error.message}`;
+          if (error.response) {
+            resultMintCat = error.response.data; // Lấy dữ liệu từ response
+          } else if (error.request) {
+            resultMintCat = "Request failed"; // Yêu cầu không nhận được phản hồi
+          } else {
+            resultMintCat = "Network or other error"; // Lỗi mạng hoặc lỗi không xác định
+          }
         }
       }
 
