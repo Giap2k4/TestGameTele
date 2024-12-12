@@ -292,7 +292,7 @@
 
           if (response.ok) {
             const responseData = await response.json();
-            resultSeason = "Json: "+  responseData;
+            resultSeason = "Json: "+ JSON.stringify(responseData);
           } else {
             resultSeason = `Request failed: ${response.status}`;
           }
@@ -320,7 +320,7 @@
 
           if (response.ok) {
             const responseData = await response.json();
-            resultMintCat = "Json: "+ responseData;
+            resultMintCat = "Json: "+ JSON.stringify(responseData);
           } else {
             resultMintCat = `Request failed: ${response.status}`;
           }
