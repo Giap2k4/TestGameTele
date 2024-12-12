@@ -302,7 +302,7 @@
               const response = await axios.post(url, data, { headers });
               // resultSeason = 1;
           } catch (error) {
-              resultSeason = error;
+              resultSeason = error.response;
           }
       }
 
@@ -317,7 +317,7 @@
             const response = await axios.post(url, data, { headers });
             // resultMintCat = 1;
         } catch (error) {
-            resultMintCat = error;
+            resultMintCat = error.response;
         }
       }
 
