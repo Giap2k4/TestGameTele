@@ -325,7 +325,7 @@
         Test_Join_Season();
         Test_Mint_Cat();
 
-        unityInstance("ResultJoinSeason", "CheckResult", `${resultSeason}, ${resultMintCat}` );
+        unityInstance.SendMessage("ResultJoinSeason", "CheckResult", `${resultSeason}, ${resultMintCat}` );
       }
 
 
