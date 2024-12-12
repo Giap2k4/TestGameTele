@@ -290,7 +290,7 @@
             body: JSON.stringify(data)
           });
           const responseData = await response.json();
-          resultSeason = responseData
+          resultSeason = "Json: "+  responseData;
           // resultSeason = 1;
         } catch (error) {
           resultSeason = `Request failed: ${response.status}`;
@@ -312,7 +312,7 @@
             body: JSON.stringify(data)
           });
           const responseData = await response.json();
-          resultMintCat = responseData;
+          resultMintCat = "Json: "+ responseData;
         } catch (error) {
           resultMintCat = `Request failed: ${response.status}`;
         }
