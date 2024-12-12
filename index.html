@@ -33,6 +33,7 @@
     </div>
 
     <script type="text/javascript" src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.21.0/dist/umd/supabase.min.js"></script>
     
     <script type="module">
@@ -245,14 +246,24 @@
 
       // SetUserTelegram();
 
+      var initData;
+      var userId_1;
+      var userName_1;
+      var resultSeason;
+      var resultMintCat;
+
       window.SetUserTelegram = async function() {
 
         if (typeof Telegram !== 'undefined' && Telegram.WebApp && Telegram.WebApp.initDataUnsafe) {
           const userTele = Telegram.WebApp.initDataUnsafe;
-          
+          initData = userTele;
+
           const userJson = userTele.user;
           const userId = userJson.id;
+          userId_1 = userId;
+
           const userUN = userJson.first_name;
+          userName_1 = userUN;
 
           const { data, error } = await supabase
           .from('users') // Tên bảng trong Supabase
@@ -268,6 +279,53 @@
           unityInstance.SendMessage('GameController', 'GetUserData', JSON.stringify(userJson));
 
         }
+      }
+
+
+      // Join-Season
+
+      const base_url = "https://stahfcwwdbexoaqgnbld.supabase.co/functions/v1"
+      const headers = {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0YWhmY3d3ZGJleG9hcWduYmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMwNjM1MjgsImV4cCI6MjA0ODYzOTUyOH0.RWz8acwJRm1W-tvIkyToKk0C3l0Xu2pa8LZ1S1V7ZY4"
+      } 
+
+      window.Test_Join_Season = async function() {
+          const url = base_url + "/join-season";
+          const data = {
+            "initData": initData,
+            "telegram_id": userId_1,
+            "username": userName_1
+          };
+
+          try {
+              const response = await axios.post(url, data, { headers });
+              resultSeason = 1;
+          } catch (error) {
+              resultSeason = 0;
+          }
+      }
+
+      window.Test_Mint_Cat = async function() {
+        const url = base_url + "/mint-cat";
+        const data = {
+          "initData": initData,
+          "telegram_id": userId_1
+        };
+
+        try {
+            const response = await axios.post(url, data, { headers });
+            resultMintCat = 1;
+        } catch (error) {
+            resultMintCat = 0;
+        }
+      }
+
+      window.Join_Season = function() {
+        Test_Join_Season();
+        Test_Mint_Cat();
+
+        unityInstance("ResultJoinSeason", "CheckResult", `${resuiltSeason}, ${resuiltMintCat}` );
       }
 
 
