@@ -302,7 +302,13 @@
               const response = await axios.post(url, data, { headers });
               // resultSeason = 1;
           } catch (error) {
-              resultSeason = error.response;
+            if (error.response) {
+              resultSeason = error.response.data; // Lấy dữ liệu từ response
+            } else if (error.request) {
+              resultSeason = "Request failed"; // Yêu cầu không nhận được phản hồi
+            } else {
+              resultSeason = "Network or other error"; // Lỗi mạng hoặc lỗi không xác định
+            }
           }
       }
 
@@ -317,7 +323,13 @@
             const response = await axios.post(url, data, { headers });
             // resultMintCat = 1;
         } catch (error) {
-            resultMintCat = error.response;
+          if (error.response) {
+            resultMintCat = error.response.data; // Lấy dữ liệu từ response
+          } else if (error.request) {
+            resultMintCat = "Request failed"; // Yêu cầu không nhận được phản hồi
+          } else {
+            resultMintCat = "Network or other error"; // Lỗi mạng hoặc lỗi không xác định
+          }
         }
       }
 
