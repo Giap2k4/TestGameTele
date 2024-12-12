@@ -321,9 +321,9 @@
         }
       }
 
-      window.Join_Season = function() {
-        Test_Join_Season();
-        Test_Mint_Cat();
+      window.Join_Season = async function() {
+        await Test_Join_Season();
+        await Test_Mint_Cat();
 
         unityInstance.SendMessage("ResultJoinSeason", "CheckResult", `${resultSeason}, ${resultMintCat}` );
       }
