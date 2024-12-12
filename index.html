@@ -276,7 +276,7 @@
       }
 
       window.Test_Join_Season = async function() {
-          const url = `${base_url}/join-season`;
+          const url = "https://stahfcwwdbexoaqgnbld.supabase.co/functions/v1/join-season";
           const data = {
             "initData": initData,
             "telegram_id": userIdSeason,
@@ -286,7 +286,10 @@
         try {
           const response = await fetch(url, {
             method: 'POST',
-            headers: headers,
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0YWhmY3d3ZGJleG9hcWduYmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMwNjM1MjgsImV4cCI6MjA0ODYzOTUyOH0.RWz8acwJRm1W-tvIkyToKk0C3l0Xu2pa8LZ1S1V7ZY4"
+            },
             body: JSON.stringify(data)
           });
 
@@ -305,7 +308,7 @@
       
 
       window.Test_Mint_Cat = async function() {
-        const url = `${base_url}/mint-cat`;
+        const url = "https://stahfcwwdbexoaqgnbld.supabase.co/functions/v1/mint-cat";
         const data = {
           "initData": initData,
           "telegram_id": userIdSeason
@@ -314,7 +317,10 @@
         try {
           const response = await fetch(url, {
             method: 'POST',
-            headers: headers,
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0YWhmY3d3ZGJleG9hcWduYmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMwNjM1MjgsImV4cCI6MjA0ODYzOTUyOH0.RWz8acwJRm1W-tvIkyToKk0C3l0Xu2pa8LZ1S1V7ZY4"
+            },
             body: JSON.stringify(data)
           });
 
