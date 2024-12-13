@@ -232,8 +232,8 @@
       // SetUserTelegram();
 
       var initData;
-      var userIdSeason;
-      var userNameSeason;
+      var telegram_id;
+      var userName;
       var resultSeason;
       var resultMintCat;
 
@@ -245,10 +245,10 @@
 
           const userJson = userTele.user;
           const userId = userJson.id;
-          userIdSeason = userId;
+          telegram_id = userId;
 
           const userUN = userJson.first_name;
-          userNameSeason = userUN;
+          userName = userUN;
 
           const { data, error } = await supabase
           .from('users') // Tên bảng trong Supabase
@@ -275,64 +275,67 @@
         "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0YWhmY3d3ZGJleG9hcWduYmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMwNjM1MjgsImV4cCI6MjA0ODYzOTUyOH0.RWz8acwJRm1W-tvIkyToKk0C3l0Xu2pa8LZ1S1V7ZY4"
       }
 
+
       window.Test_Join_Season = async function() {
-          const url = "https://stahfcwwdbexoaqgnbld.supabase.co/functions/v1/join-season";
-          const data = {
-            "initData": initData,
-            "telegram_id": userIdSeason,
-            "username": userNameSeason
-          };
-
-        try {
-          const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0YWhmY3d3ZGJleG9hcWduYmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMwNjM1MjgsImV4cCI6MjA0ODYzOTUyOH0.RWz8acwJRm1W-tvIkyToKk0C3l0Xu2pa8LZ1S1V7ZY4"
-            },
-            body: JSON.stringify(data)
-          });
-
-          if (response.ok) {
-            const responseData = await response.json();
-            resultSeason = "Json: "+ JSON.stringify(responseData);
-          } else {
-            resultSeason = `Request failed: ${response.status}`;
-          }
-          
-          // resultSeason = 1;
-        } catch (error) {
-          resultSeason = `Request: ${error.message}`;
-        }
-      }
-      
-
-      window.Test_Mint_Cat = async function() {
-        const url = "https://stahfcwwdbexoaqgnbld.supabase.co/functions/v1/mint-cat";
+        const url = "https://stahfcwwdbexoaqgnbld.supabase.co/functions/v1/join-season";
         const data = {
           "initData": initData,
-          "telegram_id": userIdSeason
+          "telegram_id": telegram_id,
+          "username": userName
         };
 
         try {
           const response = await fetch(url, {
             method: 'POST',
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0YWhmY3d3ZGJleG9hcWduYmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMwNjM1MjgsImV4cCI6MjA0ODYzOTUyOH0.RWz8acwJRm1W-tvIkyToKk0C3l0Xu2pa8LZ1S1V7ZY4"
-            },
+            headers: new Headers({
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0YWhmY3d3ZGJleG9hcWduYmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMwNjM1MjgsImV4cCI6MjA0ODYzOTUyOH0.RWz8acwJRm1W-tvIkyToKk0C3l0Xu2pa8LZ1S1V7ZY4', // Remove any template literals
+              'Access-Control-Allow-Origin': '*'  // Add CORS header
+            }),
+            mode: 'cors', // Add CORS mode
             body: JSON.stringify(data)
           });
 
           if (response.ok) {
             const responseData = await response.json();
-            resultMintCat = "Json: "+ JSON.stringify(responseData);
+            resultSeason = "Json: " + JSON.stringify(responseData);
           } else {
-            resultMintCat = `Request failed: ${response.status}`;
+            resultSeason = `Request failed: ${response.status}`;
           }
-          
         } catch (error) {
-          resultMintCat = `Request: ${error.message}`;
+          resultSeason = `Request: ${error.message}`;
+          console.error('Fetch error:', error); // Add logging
+        }
+      }
+
+      window.Test_Mint_Cat = async function() {
+        const url = "https://stahfcwwdbexoaqgnbld.supabase.co/functions/v1/mint-cat";
+        const data = {
+          "initData": initData,
+          "telegram_id": telegram_id
+        };
+
+        try {
+          const response = await fetch(url, {
+            method: 'POST',
+            headers: new Headers({
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0YWhmY3d3ZGJleG9hcWduYmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMwNjM1MjgsImV4cCI6MjA0ODYzOTUyOH0.RWz8acwJRm1W-tvIkyToKk0C3l0Xu2pa8LZ1S1V7ZY4', // Remove any template literals
+              'Access-Control-Allow-Origin': '*'  // Add CORS header
+            }),
+            mode: 'cors', // Add CORS mode
+            body: JSON.stringify(data)
+          });
+
+          if (response.ok) {
+            const responseData = await response.json();
+            resultSeason = "Json: " + JSON.stringify(responseData);
+          } else {
+            resultSeason = `Request failed: ${response.status}`;
+          }
+        } catch (error) {
+          resultSeason = `Request: ${error.message}`;
+          console.error('Fetch error:', error); // Add logging
         }
       }
 
