@@ -279,10 +279,15 @@
       window.Test_Join_Season = async function() {
         console.log("Starting join season request");
         console.log("InitData:", initData);
-        console.log("UserId:", userIdSeason);
-        console.log("Username:", userNameSeason);
+        console.log("UserId:", telegram_id);
+        console.log("Username:", userName);
 
         const url = "https://stahfcwwdbexoaqgnbld.supabase.co/functions/v1/join-season";
+        const data = {
+          "initData": initData,
+          "telegram_id": telegram_id,
+          "username": userName
+        };
 
         try {
           console.log("Attempting fetch to:", url);
