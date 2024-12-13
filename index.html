@@ -272,8 +272,8 @@
       const base_url = "https://stahfcwwdbexoaqgnbld.supabase.co/functions/v1";
       const headers = {
         "Content-Type": "application/json",
-        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0YWhmY3d3ZGJleG9hcWduYmxkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczMzA2MzUyOCwiZXhwIjoyMDQ4NjM5NTI4fQ.au6SjmVma5EZl0hH0URjYL2gy4S18BpVw_wiOIMw9RM"
-      }
+        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0YWhmY3d3ZGJleG9hcWduYmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMwNjM1MjgsImV4cCI6MjA0ODYzOTUyOH0.RWz8acwJRm1W-tvIkyToKk0C3l0Xu2pa8LZ1S1V7ZY4"
+      };
 
 
       window.Test_Join_Season = async function() {
@@ -281,6 +281,7 @@
         console.log("InitData:", initData);
         console.log("UserId:", telegram_id);
         console.log("Username:", userName);
+        console.log("Header: ", headers);
 
         const url = "https://stahfcwwdbexoaqgnbld.supabase.co/functions/v1/join-season";
         const data = {
