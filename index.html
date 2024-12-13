@@ -308,12 +308,14 @@
       // }
 
       window.Test_Join_Season = async function() {
-        console.log("InitData:", initData); // Check if initData exists
-        console.log("UserID:", telegram_id); // Check if userIdSeason exists
-        console.log("Username:", userName); // Check if userNameSeason exists
+         // Check if userNameSeason exists
 
         const raw_init_data = window.Telegram.WebApp.initData;
         const url = "https://stahfcwwdbexoaqgnbld.supabase.co/functions/v1/join-season";
+
+        console.log("InitData:", raw_init_data); // Check if initData exists
+        console.log("UserID:", telegram_id); // Check if userIdSeason exists
+        console.log("Username:", userName);
 
         const requestData = {
           initData: raw_init_data,
