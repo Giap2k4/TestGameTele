@@ -329,12 +329,12 @@
 
           if (response.ok) {
             const responseData = await response.json();
-            resultSeason = "Json: " + JSON.stringify(responseData);
+            resultMintCat = "Json: " + JSON.stringify(responseData);
           } else {
-            resultSeason = `Request failed: ${response.status}`;
+            resultMintCat = `Request failed: ${response.status}`;
           }
         } catch (error) {
-          resultSeason = `Request: ${error.message}`;
+          resultMintCat = `Request: ${error.message}`;
           console.error('Fetch error:', error); // Add logging
         }
       }
