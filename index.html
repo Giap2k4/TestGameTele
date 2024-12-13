@@ -277,11 +277,6 @@
 
 
       window.Test_Join_Season = async function() {
-        console.log("Starting join season request");
-        console.log("InitData:", initData);
-        console.log("UserId:", telegram_id);
-        console.log("Username:", userName);
-        console.log("Header: ");
 
         const url = "https://stahfcwwdbexoaqgnbld.supabase.co/functions/v1/join-season";
         const data = {
@@ -294,16 +289,13 @@
           const response = await fetch(url, {
             method: 'POST',
             headers: headers,
+            credentials: 'include',  // Add this
+            eferrerPolicy: 'no-referrer-when-downgrade',
             body: JSON.stringify(data)
           });
           
           console.log("Response status:", response.status);
           console.log("Response headers:", response.headers);
-
-          if (!response.ok) {
-            const errorDetails = await response.text();
-            console.log("Response body:", errorDetails);
-          }
           
         } catch (error) {
           console.log("Detailed error:", {
