@@ -231,7 +231,6 @@
 
       // SetUserTelegram();
 
-      var initData;
       var telegram_id;
       var userName;
       var resultSeason;
@@ -241,9 +240,8 @@
 
         if (typeof Telegram !== 'undefined' && Telegram.WebApp && Telegram.WebApp.initDataUnsafe) {
           const userTele = Telegram.WebApp.initDataUnsafe;
-          initData = userTele;
-
           const userJson = userTele.user;
+
           const userId = userJson.id;
           telegram_id = userId;
 
@@ -275,47 +273,11 @@
         "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0YWhmY3d3ZGJleG9hcWduYmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMwNjM1MjgsImV4cCI6MjA0ODYzOTUyOH0.RWz8acwJRm1W-tvIkyToKk0C3l0Xu2pa8LZ1S1V7ZY4"
       };
 
-
-      // window.Test_Join_Season = async function() {
-
-      //   const url = "https://stahfcwwdbexoaqgnbld.supabase.co/functions/v1/join-season";
-      //   const data = {
-      //     "initData": initData,
-      //     "telegram_id": telegram_id,
-      //     "username": userName
-      //   };
-
-      //   try {
-      //     const response = await fetch(url, {
-      //       method: 'POST',
-      //       headers: headers,
-      //       credentials: 'include',  // Add this
-      //       eferrerPolicy: 'no-referrer-when-downgrade',
-      //       body: JSON.stringify(data)
-      //     });
-          
-      //     console.log("Response status:", response.status);
-      //     console.log("Response headers:", response.headers);
-          
-      //   } catch (error) {
-      //     console.log("Detailed error:", {
-      //       message: error.message,
-      //       name: error.name,
-      //       stack: error.stack
-      //     });
-      //     resultSeason = `Request failed: ${error.message}`;
-      //   }
-      // }
-
       window.Test_Join_Season = async function() {
          // Check if userNameSeason exists
-
-        const raw_init_data = window.Telegram.WebApp.initData;
         const url = "https://stahfcwwdbexoaqgnbld.supabase.co/functions/v1/join-season";
 
-        console.log("InitData:", raw_init_data); // Check if initData exists
-        console.log("UserID:", telegram_id); // Check if userIdSeason exists
-        console.log("Username:", userName);
+        const raw_init_data = window.Telegram.WebApp.initData;
 
         const requestData = {
           initData: raw_init_data,
@@ -323,9 +285,6 @@
           username: userName
         };
         
-        console.log("Request Data:", requestData);
-        console.log("Auth Header:", 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0YWhmY3d3ZGJleG9hcWduYmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMwNjM1MjgsImV4cCI6MjA0ODYzOTUyOH0.RWz8acwJRm1W-tvIkyToKk0C3l0Xu2pa8LZ1S1V7ZY4'); // Log your auth token
-
         try {
           const response = await fetch(url, {
             method: 'POST',
