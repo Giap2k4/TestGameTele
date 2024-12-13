@@ -299,6 +299,11 @@
           
           console.log("Response status:", response.status);
           console.log("Response headers:", response.headers);
+
+          if (!response.ok) {
+            const errorDetails = await response.text();
+            console.log("Response body:", errorDetails);
+          }
           
         } catch (error) {
           console.log("Detailed error:", {
