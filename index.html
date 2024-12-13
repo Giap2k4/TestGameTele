@@ -276,34 +276,67 @@
       };
 
 
-      window.Test_Join_Season = async function() {
+      // window.Test_Join_Season = async function() {
 
-        const url = "https://stahfcwwdbexoaqgnbld.supabase.co/functions/v1/join-season";
-        const data = {
-          "initData": initData,
-          "telegram_id": telegram_id,
-          "username": userName
+      //   const url = "https://stahfcwwdbexoaqgnbld.supabase.co/functions/v1/join-season";
+      //   const data = {
+      //     "initData": initData,
+      //     "telegram_id": telegram_id,
+      //     "username": userName
+      //   };
+
+      //   try {
+      //     const response = await fetch(url, {
+      //       method: 'POST',
+      //       headers: headers,
+      //       credentials: 'include',  // Add this
+      //       eferrerPolicy: 'no-referrer-when-downgrade',
+      //       body: JSON.stringify(data)
+      //     });
+          
+      //     console.log("Response status:", response.status);
+      //     console.log("Response headers:", response.headers);
+          
+      //   } catch (error) {
+      //     console.log("Detailed error:", {
+      //       message: error.message,
+      //       name: error.name,
+      //       stack: error.stack
+      //     });
+      //     resultSeason = `Request failed: ${error.message}`;
+      //   }
+      // }
+
+      window.Test_Join_Season = async function() {
+        console.log("InitData:", initData); // Check if initData exists
+        console.log("UserID:", telegram_id); // Check if userIdSeason exists
+        console.log("Username:", userName); // Check if userNameSeason exists
+
+        const requestData = {
+          initData: initData,
+          telegram_id: telegram_id,
+          username: userName
         };
+        
+        console.log("Request Data:", requestData);
+        console.log("Auth Header:", 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0YWhmY3d3ZGJleG9hcWduYmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMwNjM1MjgsImV4cCI6MjA0ODYzOTUyOH0.RWz8acwJRm1W-tvIkyToKk0C3l0Xu2pa8LZ1S1V7ZY4'); // Log your auth token
 
         try {
           const response = await fetch(url, {
             method: 'POST',
-            headers: headers,
-            credentials: 'include',  // Add this
-            eferrerPolicy: 'no-referrer-when-downgrade',
-            body: JSON.stringify(data)
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0YWhmY3d3ZGJleG9hcWduYmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMwNjM1MjgsImV4cCI6MjA0ODYzOTUyOH0.RWz8acwJRm1W-tvIkyToKk0C3l0Xu2pa8LZ1S1V7ZY4',
+              'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0YWhmY3d3ZGJleG9hcWduYmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMwNjM1MjgsImV4cCI6MjA0ODYzOTUyOH0.RWz8acwJRm1W-tvIkyToKk0C3l0Xu2pa8LZ1S1V7ZY4' // Try adding this
+            },
+            body: JSON.stringify(requestData)
           });
-          
-          console.log("Response status:", response.status);
-          console.log("Response headers:", response.headers);
-          
+
+          console.log("Response Status:", response.status);
+          const responseText = await response.text();
+          console.log("Response Text:", responseText);
         } catch (error) {
-          console.log("Detailed error:", {
-            message: error.message,
-            name: error.name,
-            stack: error.stack
-          });
-          resultSeason = `Request failed: ${error.message}`;
+          console.error("Fetch Error:", error);
         }
       }
 
