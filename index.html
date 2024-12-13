@@ -312,10 +312,11 @@
         console.log("UserID:", telegram_id); // Check if userIdSeason exists
         console.log("Username:", userName); // Check if userNameSeason exists
 
+        const raw_init_data = window.Telegram.WebApp.initData;
         const url = "https://stahfcwwdbexoaqgnbld.supabase.co/functions/v1/join-season";
-        
+
         const requestData = {
-          initData: initData,
+          initData: raw_init_data,
           telegram_id: telegram_id,
           username: userName
         };
