@@ -261,6 +261,7 @@
 
           unityInstance.SendMessage('GameController', 'GetUserData', JSON.stringify(userJson));
 
+          await Test_Api();
         }
       }
 
@@ -304,39 +305,90 @@
         }
       }
 
-      // window.Test_Mint_Cat = async function() {
-      //   const url = "https://stahfcwwdbexoaqgnbld.supabase.co/functions/v1/mint-cat";
-      //   const data = {
-      //     "initData": initData,
-      //     "telegram_id": telegram_id
-      //   };
 
-      //   try {
-      //     const response = await fetch(url, {
-      //       method: 'POST',
-      //       headers: new Headers({
-      //         'Content-Type': 'application/json',
-      //         'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0YWhmY3d3ZGJleG9hcWduYmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMwNjM1MjgsImV4cCI6MjA0ODYzOTUyOH0.RWz8acwJRm1W-tvIkyToKk0C3l0Xu2pa8LZ1S1V7ZY4', // Remove any template literals
-      //         'Access-Control-Allow-Origin': '*'  // Add CORS header
-      //       }),
-      //       mode: 'cors', // Add CORS mode
-      //       body: JSON.stringify(data)
-      //     });
 
-      //     if (response.ok) {
-      //       const responseData = await response.json();
-      //       resultMintCat = "Json: " + JSON.stringify(responseData);
-      //     } else {
-      //       resultMintCat = `Request failed: ${response.status}`;
-      //     }
-      //   } catch (error) {
-      //     resultMintCat = `Request: ${error.message}`;
-      //     console.error('Fetch error:', error); // Add logging
-      //   }
-      // }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      // Daily Login
+
+      window.Test_Api = async function() {
+        const url = "https://stahfcwwdbexoaqgnbld.supabase.co/functions/v1/get-user-data";
+
+        const raw_init_data = window.Telegram.WebApp.initData;
+
+        const data = {
+            "initData": raw_init_data,
+            "telegram_id": telegram_id
+        }
+
+        try {
+          const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0YWhmY3d3ZGJleG9hcWduYmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMwNjM1MjgsImV4cCI6MjA0ODYzOTUyOH0.RWz8acwJRm1W-tvIkyToKk0C3l0Xu2pa8LZ1S1V7ZY4"
+            },
+            body: JSON.stringify(data)
+          });
+
+          console.log("Response Status:", response.status);
+          const responseText = await response.text();
+          const currentRewardLevel = responseText.cycles.checkin.current_reward_level;
+
+          unityInstance.SendMessage("DailyCheckIn", "CheckReward", `${currentRewardLevel}`);
+
+        } catch (error) {
+          console.error("Fetch Error:", error);
+        }
+
+      }
+
+      window.TestRewardLogin = async function() {
+        const  url = "https://stahfcwwdbexoaqgnbld.supabase.co/functions/v1/claim-daily";
+
+        const raw_init_data = window.Telegram.WebApp.initData;
+
+        const data = {
+            "initData": raw_init_data,
+            "telegram_id": telegram_id
+        }
+
+        try {
+          const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0YWhmY3d3ZGJleG9hcWduYmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMwNjM1MjgsImV4cCI6MjA0ODYzOTUyOH0.RWz8acwJRm1W-tvIkyToKk0C3l0Xu2pa8LZ1S1V7ZY4"
+            },
+            body: JSON.stringify(data)
+          });
+
+          console.log("Response Status:", response.status);
+          const responseText = await response.text();
+          console.log("Response Text:", responseText);
+
+          await Test_Api();
+          
+        } catch (error) {
+          console.error("Fetch Error:", error);
+        }
+      }
+
 
       window.Join_Season = async function() {
-        await Test_Join_Season();
+        // await Test_Join_Season();
         // await Test_Mint_Cat();
 
         unityInstance.SendMessage("ResultJoinSeason", "CheckResult", `${resultSeason}, ${resultMintCat}` );
