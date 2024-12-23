@@ -345,6 +345,8 @@
 
           console.log("Response Status:", response.status);
           const responseText = await response.text();
+          console.log(responseText);
+
           const currentRewardLevel = responseText.cycles.checkin.current_reward_level;
 
           unityInstance.SendMessage("DailyCheckIn", "CheckReward", `${currentRewardLevel}`);
@@ -380,7 +382,7 @@
           console.log("Response Text:", responseText);
 
           await Test_Api();
-          
+
         } catch (error) {
           console.error("Fetch Error:", error);
         }
