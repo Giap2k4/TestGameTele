@@ -209,28 +209,6 @@
 
 
 
-
-      // window.SetUserTelegram = function() {
-      //   if (typeof Telegram !== 'undefined' && Telegram.WebApp && Telegram.WebApp.initDataUnsafe) {
-      //     const userTele = Telegram.WebApp.initDataUnsafe;
-      //     const userJson = userTele.user;
-          
-      //     const initData = Telegram.WebApp.initData;
-      //     const decodedInitData = decodeURIComponent(initData);
-          
-
-      //     const text_1 = document.getElementById("text_1");
-      //     const text_2 = document.getElementById("text_2");
-
-      //     text_1.innerText = "InitData: " + decodedInitData;
-      //     text_2.innerText = "User: " + JSON.stringify(userJson, null, 2);
-      //     // unityInstance.SendMessage('GameController', 'GetInitData', JSON.stringify(decodedInitData));
-      //     // unityInstance.SendMessage('GameController', 'GetUser', JSON.stringify(userJson));
-      //   }
-      // }
-
-      // SetUserTelegram();
-
       var telegram_id;
       var userName;
       var resultSeason;
@@ -349,13 +327,16 @@
 
           const currentRewardLevel = responseText.cycles.checkin.current_reward_level;
 
-          unityInstance.SendMessage("DailyCheckIn", "CheckReward", `${currentRewardLevel}`);
+          unityInstance.SendMessage("DailyCheckIn", "CheckCurrentReward", `${currentRewardLevel}`);
 
         } catch (error) {
           console.error("Fetch Error:", error);
         }
 
       }
+
+
+      // Claim Daily
 
       window.TestRewardLogin = async function() {
         const  url = "https://stahfcwwdbexoaqgnbld.supabase.co/functions/v1/claim-daily";
@@ -381,12 +362,62 @@
           const responseText = await response.text();
           console.log("Response Text:", responseText);
 
-          await Test_Api();
+          // await Test_Api();
+
+          unityInstance.SendMessage("DailyCheckIn", "CheckReward", `${response.status}`, `${responseText}`);
 
         } catch (error) {
           console.error("Fetch Error:", error);
         }
       }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
       window.Join_Season = async function() {
