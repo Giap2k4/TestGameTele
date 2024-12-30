@@ -325,12 +325,14 @@
           const responseText = await response.json();
           console.log(responseText);
 
-          const currentRewardLevel = responseText.cycles.checkin.current_reward_level;
-          const canClaim = responseText.cycles.checkin.time_remaining.canClaim;
-          const hours = responseText.cycles.checkin.time_remaining.hours;
-          const minutes = responseText.cycles.checkin.time_remaining.minutes;
+          const dataToSend = JSON.stringify({
+              currentRewardLevel: responseText.cycles.checkin.current_reward_level,
+              canClaim: responseText.cycles.checkin.time_remaining.canClaim,
+              hours: responseText.cycles.checkin.time_remaining.hours,
+              minutes: responseText.cycles.checkin.time_remaining.minutes,
+          });
 
-          unityInstance.SendMessage("DailyCheckIn", "CheckCurrentReward", `${currentRewardLevel}`, `${canClaim}`, `${hours}`, `${minutes}`);
+          unityInstance.SendMessage("DailyCheckIn", "CheckCurrentReward", dataToSend);
 
         } catch (error) {
           console.error("Fetch Error:", error);
