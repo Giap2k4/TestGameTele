@@ -3,14 +3,13 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Unity WebGL Player | GameTele_01</title>
+    <title>Unity WebGL Player | GameTele</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
   </head>
   <body>
     <div id="unity-container" class="unity-desktop">
       <canvas id="unity-canvas" width=292 height=518 tabindex="-1"></canvas>
-
       <div id="unity-loading-bar">
         <div id="unity-logo"></div>
         <div id="unity-progress-bar-empty">
@@ -18,23 +17,27 @@
         </div>
       </div>
       <div id="unity-warning"> </div>
+      <div id="unity-footer">
+        <div id="unity-webgl-logo"></div>
+        <div id="unity-fullscreen-button"></div>
+        <div id="unity-build-title">GameTele</div>
+      </div>
     </div>
-
-    <script type="text/javascript" src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.21.0/dist/umd/supabase.min.js"></script>
-    
-    <script type="module">
-
-      var unityInstance; // Khai báo biến toàn cục cho unityInstance
+    <script>
 
       var container = document.querySelector("#unity-container");
       var canvas = document.querySelector("#unity-canvas");
       var loadingBar = document.querySelector("#unity-loading-bar");
       var progressBarFull = document.querySelector("#unity-progress-bar-full");
-      //var fullscreenButton = document.querySelector("#unity-fullscreen-button");
+      var fullscreenButton = document.querySelector("#unity-fullscreen-button");
       var warningBanner = document.querySelector("#unity-warning");
 
+      // Shows a temporary message banner/ribbon for a few seconds, or
+      // a permanent error message on top of the canvas if type=='error'.
+      // If type=='warning', a yellow highlight color is used.
+      // Modify or remove this function to customize the visually presented
+      // way that non-critical warnings and error messages are presented to the
+      // user.
       function unityShowBanner(msg, type) {
         function updateBannerVisibility() {
           warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
@@ -54,11 +57,11 @@
       }
 
       var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/GameTele.loader.js";
+      var loaderUrl = buildUrl + "/TestGameTele.loader.js";
       var config = {
-        dataUrl: buildUrl + "/GameTele.data",
-        frameworkUrl: buildUrl + "/GameTele.framework.js",
-        codeUrl: buildUrl + "/GameTele.wasm",
+        dataUrl: buildUrl + "/TestGameTele.data",
+        frameworkUrl: buildUrl + "/TestGameTele.framework.js",
+        codeUrl: buildUrl + "/TestGameTele.wasm",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "DefaultCompany",
         productName: "GameTele",
@@ -66,16 +69,33 @@
         showBanner: unityShowBanner,
       };
 
+      // By default, Unity keeps WebGL canvas render target size matched with
+      // the DOM size of the canvas element (scaled by window.devicePixelRatio)
+      // Set this to false if you want to decouple this synchronization from
+      // happening inside the engine, and you would instead like to size up
+      // the canvas DOM size and WebGL render target sizes yourself.
+      // config.matchWebGLToCanvasSize = false;
+
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        // Mobile device style: fill the whole browser client area with the game canvas:
+
         var meta = document.createElement('meta');
         meta.name = 'viewport';
         meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
         document.getElementsByTagName('head')[0].appendChild(meta);
         container.className = "unity-mobile";
         canvas.className = "unity-mobile";
+
+        // To lower canvas resolution on mobile devices to gain some
+        // performance, uncomment the following line:
+        // config.devicePixelRatio = 1;
+
+
       } else {
-        canvas.style.width = "324px";
-        canvas.style.height = "576px";
+        // Desktop style: Render the game canvas in a window that can be maximized to fullscreen:
+
+        canvas.style.width = "292px";
+        canvas.style.height = "518px";
       }
 
       loadingBar.style.display = "block";
@@ -85,355 +105,18 @@
       script.onload = () => {
         createUnityInstance(canvas, config, (progress) => {
           progressBarFull.style.width = 100 * progress + "%";
-        }).then((unityInstanceLoaded) => {
-          unityInstance = unityInstanceLoaded; // Gán unityInstance khi đã khởi tạo thành công
-          loadingBar.style.display = "none";
-        }).catch((message) => {
-          alert(message);
-        });
-      };
+              }).then((unityInstance) => {
+                loadingBar.style.display = "none";
+                fullscreenButton.onclick = () => {
+                  unityInstance.SetFullscreen(1);
+                };
+              }).catch((message) => {
+                alert(message);
+              });
+            };
 
       document.body.appendChild(script);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      
-  // Initialize the JS client
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-    const supabase = createClient("https://stahfcwwdbexoaqgnbld.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0YWhmY3d3ZGJleG9hcWduYmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMwNjM1MjgsImV4cCI6MjA0ODYzOTUyOH0.RWz8acwJRm1W-tvIkyToKk0C3l0Xu2pa8LZ1S1V7ZY4");
-
-    let activeChannels = {};
-
-    // Create a function to handle inserts
-    window.DataRealTimeAttackById = function(id) {
-      const handleUpdates = (payload) => {
-      const id = payload.new.id;
-      const dataNew = payload.new.hp;
-      const dataOld = payload.old.hp;
-
-      const dataObj = {
-        id: id,
-        hpNew: dataNew,
-        hpOld: dataOld
-      };
-
-      const jsonData = JSON.stringify(dataObj);
-
-      unityInstance.SendMessage('GameController', 'DataRealTimeAttack', jsonData);
-    }
-
-    // Listen to inserts
-    const channel = supabase
-      .channel('users')
-      .on('postgres_changes', 
-          { 
-            event: 'UPDATE', 
-            schema: 'public', 
-            table: 'users',
-            filter: 'id=eq.' + id // Chỉ lắng nghe thay đổi của user có id = 1
-          }, 
-          handleUpdates)
-      .subscribe();
-
-      activeChannels[id] = channel;
-
-    }
-
-    window.stopDataRealTimeAttackById = function(id) {
-      const channel = activeChannels[id];
-      if (channel) {
-        // Hủy đăng ký kênh
-        channel.unsubscribe();
-        delete activeChannels[id]; // Xóa khỏi danh sách activeChannels
-      } 
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      var telegram_id;
-      var userName;
-      var resultSeason;
-      var resultMintCat;
-
-      window.SetUserTelegram = async function() {
-
-        if (typeof Telegram !== 'undefined' && Telegram.WebApp && Telegram.WebApp.initDataUnsafe) {
-          const userTele = Telegram.WebApp.initDataUnsafe;
-          const userJson = userTele.user;
-
-          const userId = userJson.id;
-          telegram_id = userId;
-
-          const userUN = userJson.first_name;
-          userName = userUN;
-
-          const { data, error } = await supabase
-          .from('users') // Tên bảng trong Supabase
-          .select('telegram_id')
-          .eq('telegram_id', userId);
-
-          if (data.length === 0) {
-            const { insertError } = await supabase
-              .from('users')
-              .insert([{ telegram_id: userId, username: userUN }]);
-          }
-
-          unityInstance.SendMessage('GameController', 'GetUserData', JSON.stringify(userJson));
-
-          await Test_Api();
-        }
-      }
-
-
-      // Join-Season
-
-      const base_url = "https://stahfcwwdbexoaqgnbld.supabase.co/functions/v1";
-      const headers = {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0YWhmY3d3ZGJleG9hcWduYmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMwNjM1MjgsImV4cCI6MjA0ODYzOTUyOH0.RWz8acwJRm1W-tvIkyToKk0C3l0Xu2pa8LZ1S1V7ZY4"
-      };
-
-      window.Test_Join_Season = async function() {
-         // Check if userNameSeason exists
-        const url = "https://stahfcwwdbexoaqgnbld.supabase.co/functions/v1/join-season";
-
-        const raw_init_data = window.Telegram.WebApp.initData;
-
-        const requestData = {
-          initData: raw_init_data,
-          telegram_id: telegram_id,
-          username: userName
-        };
-        
-        try {
-          const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0YWhmY3d3ZGJleG9hcWduYmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMwNjM1MjgsImV4cCI6MjA0ODYzOTUyOH0.RWz8acwJRm1W-tvIkyToKk0C3l0Xu2pa8LZ1S1V7ZY4',
-              'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0YWhmY3d3ZGJleG9hcWduYmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMwNjM1MjgsImV4cCI6MjA0ODYzOTUyOH0.RWz8acwJRm1W-tvIkyToKk0C3l0Xu2pa8LZ1S1V7ZY4' // Try adding this
-            },
-            body: JSON.stringify(requestData)
-          });
-
-          console.log("Response Status:", response.status);
-          const responseText = await response.text();
-          console.log("Response Text:", responseText);
-        } catch (error) {
-          console.error("Fetch Error:", error);
-        }
-      }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      // Daily Login
-
-      window.Test_Api = async function() {
-        const url = "https://stahfcwwdbexoaqgnbld.supabase.co/functions/v1/get-user-data";
-
-        const raw_init_data = window.Telegram.WebApp.initData;
-
-        const data = {
-            "initData": raw_init_data,
-            "telegram_id": telegram_id
-        }
-
-        try {
-          const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0YWhmY3d3ZGJleG9hcWduYmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMwNjM1MjgsImV4cCI6MjA0ODYzOTUyOH0.RWz8acwJRm1W-tvIkyToKk0C3l0Xu2pa8LZ1S1V7ZY4"
-            },
-            body: JSON.stringify(data)
-          });
-
-          console.log("Response Status:", response.status);
-          const responseText = await response.json();
-          console.log(responseText);
-
-          const dataToSend = JSON.stringify({
-              currentRewardLevel: responseText.cycles.checkin.current_reward_level,
-              canClaim: responseText.cycles.checkin.time_remaining.canClaim,
-              hours: responseText.cycles.checkin.time_remaining.hours,
-              minutes: responseText.cycles.checkin.time_remaining.minutes,
-          });
-
-          unityInstance.SendMessage("DailyCheckIn", "CheckCurrentReward", dataToSend);
-
-        } catch (error) {
-          console.error("Fetch Error:", error);
-        }
-
-      }
-
-
-      // Claim Daily
-
-      window.TestRewardLogin = async function() {
-        const  url = "https://stahfcwwdbexoaqgnbld.supabase.co/functions/v1/claim-daily";
-
-        const raw_init_data = window.Telegram.WebApp.initData;
-
-        const data = {
-            "initData": raw_init_data,
-            "telegram_id": telegram_id
-        }
-
-        try {
-          const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0YWhmY3d3ZGJleG9hcWduYmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMwNjM1MjgsImV4cCI6MjA0ODYzOTUyOH0.RWz8acwJRm1W-tvIkyToKk0C3l0Xu2pa8LZ1S1V7ZY4"
-            },
-            body: JSON.stringify(data)
-          });
-
-          // console.log("Response Status:", response.status);
-          // const responseText = await response.text();
-          // console.log("Response Text:", responseText);
-
-          // await Test_Api();
-
-          // unityInstance.SendMessage("DailyCheckIn", "CheckReward", `${response.status}`, `${responseText}`);
-
-        } catch (error) {
-          console.error("Fetch Error:", error);
-        }
-      }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      window.Join_Season = async function() {
-        // await Test_Join_Season();
-        // await Test_Mint_Cat();
-
-        unityInstance.SendMessage("ResultJoinSeason", "CheckResult", `${resultSeason}, ${resultMintCat}` );
-      }
-
-
     </script>
-    
   </body>
 </html>
