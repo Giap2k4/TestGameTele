@@ -131,6 +131,11 @@
       dappKeyPair = nacl.box.keyPair();
       window.bs58 = Base58;
     });
+
+    function buildUrl(action, params) {
+      const baseUrl = "https://phantom.app/ul/v1/";
+      return baseUrl + action + "?" + params.toString();
+    }
   </script>
   
 
