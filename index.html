@@ -125,7 +125,7 @@
   <script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl-fast.min.js"></script>
   <script>
     document.addEventListener("DOMContentLoaded", function() {
-      window.dappKeyPair = nacl.box.keyPair();
+      const dappKeyPair = nacl.box.keyPair();
       window.bs58 = Base58;
     });
   </script>
