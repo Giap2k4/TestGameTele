@@ -135,6 +135,20 @@
           window.bs58 = Base58;
       });
   </script>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/@privy-io/js-sdk-core@0.46.1/dist/cjs/index.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        window.PrivyInstance = new window.Privy({
+            appId: "cm8sg6lrc01tt7m6pfek4uit5",
+            config: {
+                embeddedWallets: { createOnLogin: "users-without-wallets" },
+                externalWallets: { solana: { enabled: true } }
+            }
+        });
+    });
+  </script>
   
 
 </html>
