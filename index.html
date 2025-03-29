@@ -141,9 +141,11 @@
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 
 
-  <script>
+  <script type="module">
+    import { Privy } from "@privy-io/react-auth";
+
     document.addEventListener("DOMContentLoaded", function () {
-        window.PrivyInstance = new window.Privy({
+        window.PrivyInstance = new Privy({
             appId: "cm8sg6lrc01tt7m6pfek4uit5",
             config: {
                 embeddedWallets: { createOnLogin: "users-without-wallets" },
