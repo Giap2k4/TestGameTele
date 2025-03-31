@@ -121,6 +121,18 @@
 
   </body>
 
+  <script>
+
+    if (!window.WalletState) {
+        window.WalletState = {
+            walletAddress: null,
+            isConnecting: false,
+            isAuthenticating: false,
+            isAuthenticated: false,
+            isConnected: false
+        }}
+  </script>
+
   
 
 </html>
