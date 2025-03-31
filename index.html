@@ -121,41 +121,6 @@
 
   </body>
 
-  <script src="https://cdn.jsdelivr.net/npm/base-58@0.0.1/Base58.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl-fast.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@solana/wallet-adapter-wallets@0.19.33/lib/cjs/index.min.js"></script>
-
-  <script>
-      let dappKeyPair;
-      let onDisconnectRedirectLink = "https://giap2k4.github.io/TestGameTele/";
-
-      // Chạy khi trang web tải xong
-      document.addEventListener("DOMContentLoaded", function () {
-          dappKeyPair = nacl.box.keyPair();
-          window.bs58 = Base58;
-      });
-  </script>
-
-  <script src="https://unpkg.com/@privy-io/js-sdk-core@0.46.3/dist/index.umd.js"></script>
-  <script>
-      document.addEventListener("DOMContentLoaded", function () {
-          if (!window.PrivySDK) {
-              console.error("⚠️ Privy SDK chưa được tải!");
-              return;
-          }
-
-          window.PrivyInstance = new window.PrivySDK.Privy({
-              appId: "cm8sg6lrc01tt7m6pfek4uit5",
-              config: {
-                  embeddedWallets: { createOnLogin: "users-without-wallets" },
-                  externalWallets: { solana: { enabled: true } }
-              }
-          });
-
-          console.log("✅ Privy đã được khởi tạo!");
-      });
-  </script>
-
   
 
 </html>
