@@ -121,8 +121,11 @@
 
   </body>
 
-  <script>
+  <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.min.js"></script>
 
+
+  <script>
+    const ENCRYPTION_KEY = "MY_SECRET_KEY";
     if (!window.WalletState) {
         window.WalletState = {
             walletAddress: null,
@@ -131,6 +134,8 @@
             isAuthenticated: false,
             isConnected: false
         }}
+    let refreshIntervalId = null;    
+    let urlApi = "http://localhost:8080/api/v1";
   </script>
 
   
