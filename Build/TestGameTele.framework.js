@@ -14,62 +14,66 @@ var Module=typeof unityFramework!="undefined"?unityFramework:{};var readyPromise
         window.WalletState.isConnecting = true;
 
         return new Promise((resolve, reject) => {
-            const solana = window.solana;
-            if (!solana || !solana.isPhantom) {
-                alert('Phantom wallet not found! Please install it from https://phantom.app/');
-                window.WalletState.isConnecting = false;
-                reject('Phantom wallet not found');
-                return;
-            }
-
-            solana.connect()
-                .then(async response => {
-                    window.WalletState.walletAddress = response.publicKey.toString();
-                    window.WalletState.isConnected = true;
+            try {
+                const solana = window.solana;
+                if (!solana || !solana.isPhantom) {
                     window.WalletState.isConnecting = false;
-                    localStorage.setItem('wallet_address', window.WalletState.walletAddress);
-                    alert('Wallet connected: ' + window.WalletState.walletAddress);
+                    reject('Phantom wallet not found! Please install it from https://phantom.app/');
+                    return;
+                }
 
-                    // Gửi message về Unity khi kết nối thành công
-                    gameInstance.SendMessage("WalletAPIManager", "OnWalletConnected", window.WalletState.isConnected);
-
-                    // Kiểm tra token hiện tại
-                    const currentAccessToken = Module.GetAccessToken();
-                    if (currentAccessToken) {
+                solana.connect()
+                    .then(async response => {
                         try {
-                            // Kiểm tra token còn hợp lệ không
-                            const tokenParts = currentAccessToken.split('.');
-                            if (tokenParts.length === 3) {
-                                const payload = JSON.parse(atob(tokenParts[1]));
-                                const expirationTime = payload.exp * 1000;
-                                const currentTime = Date.now();
-                                
-                                // Nếu token còn hợp lệ (còn hơn 5 phút)
-                                if (expirationTime - currentTime > 5 * 60 * 1000) {
-                                    window.WalletState.isAuthenticated = true;
-                                    Module.AutoRefreshToken(); // Setup auto refresh
-                                    resolve();
-                                    return;
+                            window.WalletState.walletAddress = response.publicKey.toString();
+                            window.WalletState.isConnected = true;
+                            window.WalletState.isConnecting = false;
+                            localStorage.setItem('wallet_address', window.WalletState.walletAddress);
+                            alert('Wallet connected: ' + window.WalletState.walletAddress);
+
+                            gameInstance.SendMessage("WalletAPIManager", "OnWalletConnected", window.WalletState.isConnected);
+
+                            const currentAccessToken = Module.GetAccessToken();
+                            if (currentAccessToken) {
+                                try {
+                                    const tokenParts = currentAccessToken.split('.');
+                                    if (tokenParts.length === 3) {
+                                        const payload = JSON.parse(atob(tokenParts[1]));
+                                        const expirationTime = payload.exp * 1000;
+                                        const currentTime = Date.now();
+                                        
+                                        if (expirationTime - currentTime > 5 * 60 * 1000) {
+                                            window.WalletState.isAuthenticated = true;
+                                            Module.AutoRefreshToken();
+                                            resolve();
+                                            return;
+                                        }
+                                    }
+                                } catch (error) {
+                                    console.error('Error checking token validity:', error);
                                 }
                             }
-                        } catch (error) {
-                            console.error('Error checking token validity:', error);
-                        }
-                    }
 
-                    // Nếu không có token hoặc token không hợp lệ, thực hiện authentication
-                    try {
-                        await Module.AuthenticateWallet();
-                        resolve();
-                    } catch (error) {
+                            try {
+                                await Module.AuthenticateWallet();
+                                resolve();
+                            } catch (error) {
+                                reject(error);
+                            }
+                        } catch (error) {
+                            reject(error);
+                        }
+                    })
+                    .catch(error => {
+                        window.WalletState.isConnecting = false;
+                        console.error('Failed to connect:', error);
                         reject(error);
-                    }
-                })
-                .catch(error => {
-                    window.WalletState.isConnecting = false;
-                    console.error('Failed to connect:', error);
-                    reject(error);
-                });
+                    });
+            } catch (error) {
+                window.WalletState.isConnecting = false;
+                console.error('Error in ConnectPhantomWallet:', error);
+                reject(error);
+            }
         });
     };
     
@@ -204,7 +208,6 @@ var Module=typeof unityFramework!="undefined"?unityFramework:{};var readyPromise
                 const errorText = await response.text();
                 const errorMessage = `Verify failed with status ${response.status}: ${errorText}`;
                 console.error('Verify error response:', errorMessage);
-                gameInstance.SendMessage("WalletAPIManager", "OnWalletError", errorMessage);
                 throw new Error(errorMessage);
             }
 
@@ -213,7 +216,6 @@ var Module=typeof unityFramework!="undefined"?unityFramework:{};var readyPromise
             if (!responseData.data || !responseData.data.access_token || !responseData.data.refresh_token) {
                 const errorMessage = 'Invalid verify response structure';
                 console.error(errorMessage, responseData);
-                gameInstance.SendMessage("WalletAPIManager", "OnWalletError", errorMessage);
                 throw new Error(errorMessage);
             }
 
@@ -234,7 +236,6 @@ var Module=typeof unityFramework!="undefined"?unityFramework:{};var readyPromise
                 if (!refresh_token) {
                     const errorMessage = 'No refresh token found';
                     console.error(errorMessage);
-                    gameInstance.SendMessage("WalletAPIManager", "OnWalletError", errorMessage);
                     reject(new Error(errorMessage));
                     return;
                 }
