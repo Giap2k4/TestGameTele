@@ -77,15 +77,48 @@ var Module=typeof unityFramework!="undefined"?unityFramework:{};var readyPromise
     };
 
     Module.GetNonce = async function (walletAddress) {
-        const response = await fetch(`${window.urlApi}/api/v1/auth/nonce/${walletAddress}`, {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' }
-        });
-        const nonceData = await response.json();
-        if (!nonceData.nonce) {
-            throw new Error('Failed to fetch nonce');
+        try {
+            console.log('Calling GetNonce for wallet:', walletAddress);
+            
+            const response = await fetch(`${window.urlApi}/api/v1/auth/nonce/${walletAddress}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'  // Chỉ cần Accept header, không cần Content-Type vì là GET request
+                }
+            });
+
+            console.log('Response status:', response.status);
+            
+            // Log response headers để debug
+            const headers = {};
+            response.headers.forEach((value, key) => {
+                headers[key] = value;
+            });
+            console.log('Response headers:', headers);
+
+            if (response.status === 204) {
+                throw new Error('Server returned no content (204)');
+            }
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const responseText = await response.text();
+            console.log('Raw response:', responseText);
+
+            const nonceData = JSON.parse(responseText);
+            console.log('Parsed response:', nonceData);
+            
+            if (!nonceData.data || !nonceData.data.nonce) {
+                throw new Error('Invalid nonce data structure');
+            }
+
+            return nonceData.data.nonce;
+        } catch (error) {
+            console.error('Error in GetNonce:', error);
+            throw error;
         }
-        return nonceData.nonce;
     };
     
     Module.SignNonce = function (nonce) {
