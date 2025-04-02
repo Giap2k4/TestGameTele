@@ -123,21 +123,68 @@ var Module=typeof unityFramework!="undefined"?unityFramework:{};var readyPromise
         }
     };
     
-    Module.SignNonce = function (nonce) {
-        const message = new TextEncoder().encode(nonce);
-        return window.solana.signMessage(message, 'utf8');
+    Module.SignNonce = async function (nonce) {
+        try {
+            console.log('Signing nonce:', nonce);
+            const message = new TextEncoder().encode(nonce);
+            const signature = await window.solana.signMessage(message, 'utf8');
+            console.log('Generated signature:', signature);
+            console.log('Message to sign:', nonce);
+            console.log('Signature format:', typeof signature, signature);
+            return signature;
+        } catch (error) {
+            console.error('Error signing nonce:', error);
+            throw error;
+        }
     };
     
     Module.VerifySignature = async function (walletAddress, signature) {
-        const response = await fetch(`${window.urlApi}/api/v1/auth/verify`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                wallet_address: Base58.encode(new TextEncoder().encode(walletAddress)),
-                signature: { data: Array.from(signature) }
-            })
-        });
-        return await response.json();
+        try {
+            console.log('Verifying signature for wallet:', walletAddress);
+            console.log('Signature:', signature);
+
+            const requestBody = {
+                wallet_address: walletAddress,
+                signature: Buffer.from(signature).toString('base64')
+            };
+            
+            console.log('Request body:', JSON.stringify(requestBody, null, 2));
+
+            const response = await fetch(`${window.urlApi}/api/v1/auth/verify`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'ngrok-skip-browser-warning': '1'
+                },
+                body: JSON.stringify(requestBody)
+            });
+
+            console.log('Verify response status:', response.status);
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Verify error response:', errorText);
+                throw new Error(`Verify failed with status ${response.status}: ${errorText}`);
+            }
+
+            const data = await response.json();
+            console.log('Verify response data:', data);
+
+            if (!data.access_token || !data.refresh_token) {
+                throw new Error('Invalid verify response structure');
+            }
+
+            console.log('Request URL:', `${window.urlApi}/api/v1/auth/verify`);
+            console.log('Request headers:', headers);
+            console.log('Raw signature:', signature);
+            console.log('Processed signature:', Array.from(signature));
+
+            return data;
+        } catch (error) {
+            console.error('Error in VerifySignature:', error);
+            throw error;
+        }
     };
     
     Module.RefreshToken = function () {
