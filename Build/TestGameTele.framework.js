@@ -31,7 +31,7 @@ var Module=typeof unityFramework!="undefined"?unityFramework:{};var readyPromise
                             localStorage.setItem('wallet_address', window.WalletState.walletAddress);
                             alert('Wallet connected: ' + window.WalletState.walletAddress);
 
-                            gameInstance.SendMessage("WalletAPIManager", "OnWalletConnected", window.WalletState.isConnected);
+                            gameInstance.SendMessage("WalletAPIManager", "OnWalletConnected", window.WalletState.isConnected ? "true" : "false");
 
                             const currentAccessToken = Module.GetAccessToken();
                             if (currentAccessToken) {
@@ -285,8 +285,7 @@ var Module=typeof unityFramework!="undefined"?unityFramework:{};var readyPromise
                 localStorage.removeItem('access_token');
                 localStorage.removeItem('refresh_token');
                 
-                // Gửi message về Unity khi ngắt kết nối
-                gameInstance.SendMessage("WalletAPIManager", "OnWalletDisconnected", true);
+                gameInstance.SendMessage("WalletAPIManager", "OnWalletDisconnected", "true");
                 
                 alert('Disconnected from wallet');
                 resolve(true);
