@@ -265,6 +265,10 @@ var Module=typeof unityFramework!="undefined"?unityFramework:{};var readyPromise
                     console.error('Refresh token failed:', error);
                     reject(error);
                 });
+            } catch (error) {
+                console.error('Error in RefreshToken:', error);
+                reject(error);
+            }
         });
     };
 
