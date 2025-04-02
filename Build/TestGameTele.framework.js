@@ -143,9 +143,13 @@ var Module=typeof unityFramework!="undefined"?unityFramework:{};var readyPromise
             console.log('Verifying signature for wallet:', walletAddress);
             console.log('Signature:', signature);
 
+            // Chuyển đổi signature thành mảng số
+            const signatureArray = Array.from(signature.signature);
+            
+            // Tạo request body với đúng format
             const requestBody = {
                 wallet_address: walletAddress,
-                signature: Buffer.from(signature).toString('base64')
+                signature: { data: signatureArray }
             };
             
             console.log('Request body:', JSON.stringify(requestBody, null, 2));
@@ -174,11 +178,6 @@ var Module=typeof unityFramework!="undefined"?unityFramework:{};var readyPromise
             if (!data.access_token || !data.refresh_token) {
                 throw new Error('Invalid verify response structure');
             }
-
-            console.log('Request URL:', `${window.urlApi}/api/v1/auth/verify`);
-            console.log('Request headers:', headers);
-            console.log('Raw signature:', signature);
-            console.log('Processed signature:', Array.from(signature));
 
             return data;
         } catch (error) {
