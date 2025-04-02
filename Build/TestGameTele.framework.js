@@ -172,14 +172,24 @@ var Module=typeof unityFramework!="undefined"?unityFramework:{};var readyPromise
                 throw new Error(`Verify failed with status ${response.status}: ${errorText}`);
             }
 
-            const data = await response.json();
-            console.log('Verify response data:', data);
+            const responseData = await response.json();
+            console.log('Verify response data:', responseData);
+            console.log('Has data:', !!responseData.data);
+            console.log('Data structure:', responseData.data);
+            console.log('Access token:', responseData.data?.access_token);
+            console.log('Refresh token:', responseData.data?.refresh_token);
 
-            if (!data.access_token || !data.refresh_token) {
+            // Kiểm tra cấu trúc response đúng format
+            if (!responseData.data || !responseData.data.access_token || !responseData.data.refresh_token) {
+                console.error('Invalid response structure:', responseData);
                 throw new Error('Invalid verify response structure');
             }
 
-            return data;
+            // Trả về tokens từ data object
+            return {
+                access_token: responseData.data.access_token,
+                refresh_token: responseData.data.refresh_token
+            };
         } catch (error) {
             console.error('Error in VerifySignature:', error);
             throw error;
