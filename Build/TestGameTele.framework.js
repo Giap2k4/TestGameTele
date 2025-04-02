@@ -80,41 +80,43 @@ var Module=typeof unityFramework!="undefined"?unityFramework:{};var readyPromise
         try {
             console.log('Calling GetNonce for wallet:', walletAddress);
             
-            const response = await fetch(`${window.urlApi}/api/v1/auth/nonce/${walletAddress}`, {
+            // Đảm bảo URL không có dấu / ở cuối
+            const baseUrl = window.urlApi.replace(/\/$/, '');
+            const url = `${baseUrl}/api/v1/auth/nonce/${walletAddress}`;
+            console.log('Request URL:', url);
+            
+            const response = await fetch(url, {
                 method: 'GET',
                 headers: {
-                    'Accept': 'application/json'  // Chỉ cần Accept header, không cần Content-Type vì là GET request
+                    'Accept': 'application/json',
+                    // Bỏ Content-Type vì là GET request
+                    // Thêm ngrok-skip-browser-warning để tránh warning page của ngrok
+                    'ngrok-skip-browser-warning': '1'
                 }
             });
 
             console.log('Response status:', response.status);
             
-            // Log response headers để debug
-            const headers = {};
-            response.headers.forEach((value, key) => {
-                headers[key] = value;
-            });
-            console.log('Response headers:', headers);
-
-            if (response.status === 204) {
-                throw new Error('Server returned no content (204)');
-            }
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
+            // Log full response details để debug
             const responseText = await response.text();
             console.log('Raw response:', responseText);
 
-            const nonceData = JSON.parse(responseText);
-            console.log('Parsed response:', nonceData);
-            
-            if (!nonceData.data || !nonceData.data.nonce) {
-                throw new Error('Invalid nonce data structure');
-            }
+            try {
+                const nonceData = JSON.parse(responseText);
+                console.log('Parsed response:', nonceData);
+                
+                if (!nonceData.data || !nonceData.data.nonce) {
+                    throw new Error('Invalid nonce data structure');
+                }
 
-            return nonceData.data.nonce;
+                return nonceData.data.nonce;
+            } catch (parseError) {
+                // Nếu response không phải JSON, có thể là ngrok warning page
+                if (responseText.includes('<!DOCTYPE html>')) {
+                    throw new Error('Received HTML instead of JSON. Check ngrok connection and URL.');
+                }
+                throw parseError;
+            }
         } catch (error) {
             console.error('Error in GetNonce:', error);
             throw error;
