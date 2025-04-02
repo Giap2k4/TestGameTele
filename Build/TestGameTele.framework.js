@@ -6,41 +6,70 @@ var unityFramework = (() => {
 function(unityFramework) {
   unityFramework = unityFramework || {};
 
-var Module=typeof unityFramework!="undefined"?unityFramework:{};var readyPromiseResolve,readyPromiseReject;Module["ready"]=new Promise(function(resolve,reject){readyPromiseResolve=resolve;readyPromiseReject=reject});Module.ConnectPhantomWallet = async function () {
+var Module=typeof unityFramework!="undefined"?unityFramework:{};var readyPromiseResolve,readyPromiseReject;Module["ready"]=new Promise(function(resolve,reject){readyPromiseResolve=resolve;readyPromiseReject=reject});Module.ConnectPhantomWallet = function () {
+        if (window.WalletState.isConnecting) {
+            return Promise.reject(new Error('Already connecting'));
+        }
+
+        window.WalletState.isConnecting = true;
+
         return new Promise((resolve, reject) => {
-            window.WalletState.isConnecting = true;
-
-            try {
-                const solana = window.solana;
-                if (!solana || !solana.isPhantom) {
-                    alert('Phantom wallet not found! Please install it from https://phantom.app/');
-                    window.WalletState.isConnecting = false;
-                    reject('Phantom wallet not found');
-                    return;
-                }
-
-                solana.connect()
-                    .then(async response => {
-                        window.WalletState.walletAddress = response.publicKey.toString();
-                        window.WalletState.isConnected = true;
-                        window.WalletState.isConnecting = false;
-                        localStorage.setItem('wallet_address', window.WalletState.walletAddress);
-                        alert('Wallet connected: ' + window.WalletState.walletAddress);
-
-                        await Module.AuthenticateWallet();
-                    })
-                    .catch(error => {
-                        console.error('Failed to connect:', error);
-                        window.WalletState.isConnecting = false;
-                        window.WalletState.isConnected = false;
-                        alert(error.message || 'Failed to connect');
-                        reject(error);
-                    });
-            } catch (error) {
-                console.error('Error in connectWallet:', error);
+            const solana = window.solana;
+            if (!solana || !solana.isPhantom) {
+                alert('Phantom wallet not found! Please install it from https://phantom.app/');
                 window.WalletState.isConnecting = false;
-                reject(error);
+                reject('Phantom wallet not found');
+                return;
             }
+
+            solana.connect()
+                .then(async response => {
+                    window.WalletState.walletAddress = response.publicKey.toString();
+                    window.WalletState.isConnected = true;
+                    window.WalletState.isConnecting = false;
+                    localStorage.setItem('wallet_address', window.WalletState.walletAddress);
+                    alert('Wallet connected: ' + window.WalletState.walletAddress);
+
+                    // Gửi message về Unity khi kết nối thành công
+                    gameInstance.SendMessage("WalletAPIManager", "OnWalletConnected", window.WalletState.isConnected);
+
+                    // Kiểm tra token hiện tại
+                    const currentAccessToken = Module.GetAccessToken();
+                    if (currentAccessToken) {
+                        try {
+                            // Kiểm tra token còn hợp lệ không
+                            const tokenParts = currentAccessToken.split('.');
+                            if (tokenParts.length === 3) {
+                                const payload = JSON.parse(atob(tokenParts[1]));
+                                const expirationTime = payload.exp * 1000;
+                                const currentTime = Date.now();
+                                
+                                // Nếu token còn hợp lệ (còn hơn 5 phút)
+                                if (expirationTime - currentTime > 5 * 60 * 1000) {
+                                    window.WalletState.isAuthenticated = true;
+                                    Module.AutoRefreshToken(); // Setup auto refresh
+                                    resolve();
+                                    return;
+                                }
+                            }
+                        } catch (error) {
+                            console.error('Error checking token validity:', error);
+                        }
+                    }
+
+                    // Nếu không có token hoặc token không hợp lệ, thực hiện authentication
+                    try {
+                        await Module.AuthenticateWallet();
+                        resolve();
+                    } catch (error) {
+                        reject(error);
+                    }
+                })
+                .catch(error => {
+                    window.WalletState.isConnecting = false;
+                    console.error('Failed to connect:', error);
+                    reject(error);
+                });
         });
     };
     
@@ -64,6 +93,10 @@ var Module=typeof unityFramework!="undefined"?unityFramework:{};var readyPromise
                 Module.AutoRefreshToken();
 
                 window.WalletState.isAuthenticated = true;
+                
+                // Gửi message về Unity khi xác thực thành công
+                // gameInstance.SendMessage("WalletAPIManager", "OnWalletAuthenticated", window.WalletState.isAuthenticated);
+                
                 return Promise.resolve(); // Xác thực thành công
             } else {
                 throw new Error('Invalid response from server');
@@ -83,7 +116,12 @@ var Module=typeof unityFramework!="undefined"?unityFramework:{};var readyPromise
         try {
             console.log('Calling GetNonce for wallet:', walletAddress);
             
-            // Đảm bảo URL không có dấu / ở cuối
+            // Thêm timestamp vào nonce
+            const timestamp = Date.now();
+            const domain = window.location.hostname;
+            const randomNonce = Math.random().toString(36).substring(2, 15);
+            const nonce = `${timestamp}:${domain}:${randomNonce}`;
+            
             const baseUrl = window.urlApi.replace(/\/$/, '');
             const url = `${baseUrl}/api/v1/auth/nonce/${walletAddress}`;
             console.log('Request URL:', url);
@@ -92,8 +130,6 @@ var Module=typeof unityFramework!="undefined"?unityFramework:{};var readyPromise
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json',
-                    // Bỏ Content-Type vì là GET request
-                    // Thêm ngrok-skip-browser-warning để tránh warning page của ngrok
                     'ngrok-skip-browser-warning': '1'
                 }
             });
@@ -146,10 +182,7 @@ var Module=typeof unityFramework!="undefined"?unityFramework:{};var readyPromise
             console.log('Verifying signature for wallet:', walletAddress);
             console.log('Signature:', signature);
 
-            // Chuyển đổi signature thành mảng số
             const signatureArray = Array.from(signature.signature);
-            
-            // Tạo request body với đúng format
             const requestBody = {
                 wallet_address: walletAddress,
                 signature: { data: signatureArray }
@@ -167,28 +200,23 @@ var Module=typeof unityFramework!="undefined"?unityFramework:{};var readyPromise
                 body: JSON.stringify(requestBody)
             });
 
-            console.log('Verify response status:', response.status);
-            
             if (!response.ok) {
                 const errorText = await response.text();
-                console.error('Verify error response:', errorText);
-                throw new Error(`Verify failed with status ${response.status}: ${errorText}`);
+                const errorMessage = `Verify failed with status ${response.status}: ${errorText}`;
+                console.error('Verify error response:', errorMessage);
+                gameInstance.SendMessage("WalletAPIManager", "OnWalletError", errorMessage);
+                throw new Error(errorMessage);
             }
 
             const responseData = await response.json();
-            console.log('Verify response data:', responseData);
-            console.log('Has data:', !!responseData.data);
-            console.log('Data structure:', responseData.data);
-            console.log('Access token:', responseData.data?.access_token);
-            console.log('Refresh token:', responseData.data?.refresh_token);
-
-            // Kiểm tra cấu trúc response đúng format
+            
             if (!responseData.data || !responseData.data.access_token || !responseData.data.refresh_token) {
-                console.error('Invalid response structure:', responseData);
-                throw new Error('Invalid verify response structure');
+                const errorMessage = 'Invalid verify response structure';
+                console.error(errorMessage, responseData);
+                gameInstance.SendMessage("WalletAPIManager", "OnWalletError", errorMessage);
+                throw new Error(errorMessage);
             }
 
-            // Trả về tokens từ data object
             return {
                 access_token: responseData.data.access_token,
                 refresh_token: responseData.data.refresh_token
@@ -201,18 +229,29 @@ var Module=typeof unityFramework!="undefined"?unityFramework:{};var readyPromise
     
     Module.RefreshToken = function () {
         return new Promise((resolve, reject) => {
-            const refresh_token = Module.GetRefreshToken();
-            if (!refresh_token) {
-                console.error('No refresh token found');
-                reject('No refresh token');
-                return;
-            }
-            fetch(`${window.urlApi}/api/v1/auth/refresh-token`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ refresh_token })
-            })
-                .then(response => response.json())
+            try {
+                const refresh_token = Module.GetRefreshToken();
+                if (!refresh_token) {
+                    const errorMessage = 'No refresh token found';
+                    console.error(errorMessage);
+                    gameInstance.SendMessage("WalletAPIManager", "OnWalletError", errorMessage);
+                    reject(new Error(errorMessage));
+                    return;
+                }
+
+                fetch(`${window.urlApi}/api/v1/auth/refresh-token`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ refresh_token })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            throw new Error(`Refresh failed: ${text}`);
+                        });
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.access_token) {
                         Module.SetAccessToken(data.access_token);
@@ -240,6 +279,10 @@ var Module=typeof unityFramework!="undefined"?unityFramework:{};var readyPromise
                 localStorage.removeItem('wallet_address');
                 localStorage.removeItem('access_token');
                 localStorage.removeItem('refresh_token');
+                
+                // Gửi message về Unity khi ngắt kết nối
+                gameInstance.SendMessage("WalletAPIManager", "OnWalletDisconnected", true);
+                
                 alert('Disconnected from wallet');
                 resolve(true);
             } catch (error) {
@@ -249,19 +292,24 @@ var Module=typeof unityFramework!="undefined"?unityFramework:{};var readyPromise
     };
     
     Module.SetAccessToken = function (token) {
-        localStorage.setItem('access_token', token);
+        sessionStorage.setItem('access_token', token);
     };
 
     Module.GetAccessToken = function () {
-        return localStorage.getItem('access_token') || '';
+        return sessionStorage.getItem('access_token') || '';
     };
 
     Module.SetRefreshToken = function (token) {
-        localStorage.setItem('refresh_token', token);
+        sessionStorage.setItem('refresh_token', token);
     };
 
     Module.GetRefreshToken = function () {
-        return localStorage.getItem('refresh_token') || '';
+        return sessionStorage.getItem('refresh_token') || '';
+    };
+
+    Module.ClearTokens = function () {
+        sessionStorage.removeItem('access_token');
+        sessionStorage.removeItem('refresh_token');
     };
 
     Module.AutoRefreshToken = function() {
