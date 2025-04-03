@@ -281,11 +281,12 @@ var Module=typeof unityFramework!="undefined"?unityFramework:{};var readyPromise
                 window.WalletState.walletAddress = null;
                 window.WalletState.isConnected = false;
                 window.WalletState.isAuthenticated = false;
-                localStorage.removeItem('wallet_address');
-                localStorage.removeItem('access_token');
-                localStorage.removeItem('refresh_token');
                 
-                gameInstance.SendMessage("WalletAPIManager", "OnWalletDisconnected", "true");
+                sessionStorage.removeItem('wallet_address');
+                sessionStorage.removeItem('access_token');
+                sessionStorage.removeItem('refresh_token');
+                
+                gameInstance.SendMessage("WalletAPIManager", "OnWalletDisconnected", window.WalletState.isConnected ? "true" : "false");
                 
                 alert('Disconnected from wallet');
                 resolve(true);
