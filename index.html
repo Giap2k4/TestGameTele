@@ -99,7 +99,6 @@
       }
 
       loadingBar.style.display = "block";
-      var gameInstance;
 
       var script = document.createElement("script");
       script.src = loaderUrl;
@@ -107,7 +106,6 @@
         createUnityInstance(canvas, config, (progress) => {
           progressBarFull.style.width = 100 * progress + "%";
               }).then((unityInstance) => {
-                gameInstance = unityInstance;
                 loadingBar.style.display = "none";
                 fullscreenButton.onclick = () => {
                   unityInstance.SetFullscreen(1);
@@ -120,10 +118,5 @@
       document.body.appendChild(script);
 
     </script>
-
   </body>
-
-  <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/base-58@0.0.1/Base58.min.js"></script>
-
 </html>
