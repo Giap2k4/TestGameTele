@@ -493,7 +493,6 @@ Module.APIManager = {
                     throw new Error('No access token available');
                 }
 
-<<<<<<< HEAD
                 const endpointFull = parameterStr != null
                     ? endpointStr.replace("{parameter}", parameterStr)  // Thay {parameter} bằng parameter
                     : endpointStr; 
@@ -501,7 +500,7 @@ Module.APIManager = {
                 const url = `${this.API_URL}${endpointFull}`;
                 console.log(`Url call API : ${url}`);
 
-=======
+
                 const endpointFull = parameter != null
                     ? endpoint.replace("{parameter}", parameter)  // Thay {parameter} bằng parameter
                     : endpoint; 
@@ -512,7 +511,7 @@ Module.APIManager = {
 		    console.log(`Method : ${method}`);
 		    console.log(`body : ${body}`);
 		    console.log(`Param : ${parameter}`);
->>>>>>> cee01da700ee6c566d86962d88849e6bad5b58d3
+
                 const headers = {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
