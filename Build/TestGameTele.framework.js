@@ -481,7 +481,7 @@ Module.APIManager = {
                     : endpoint; 
 
                 const url = `${this.API_URL}${endpointFull}`;
-
+		console.log(url);
                 const headers = {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
