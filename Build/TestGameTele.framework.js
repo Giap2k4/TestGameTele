@@ -95,7 +95,7 @@ Module['ready'] = new Promise(function(resolve, reject) {
 // --pre-jses are emitted after the Module integration code, so that they can
 // refer to Module (if they choose; they can also define Module)
 const ENCRYPTION_KEY = "MY_SECRET_KEY";
-const API_URL = "https://81c5-42-113-16-79.ngrok-free.app";
+const API_URL = "https://8c5d-42-113-16-79.ngrok-free.app";
 window.urlApi = API_URL;
 
 // Khởi tạo WalletState nếu chưa tồn tại
@@ -136,8 +136,6 @@ Module.ConnectPhantomWallet = function () {
                         window.WalletState.isConnecting = false;
                         localStorage.setItem('wallet_address', window.WalletState.walletAddress);
                         alert('Wallet connected: ' + window.WalletState.walletAddress);
-
-                        gameInstance.SendMessage("WalletAPIManager", "OnWalletConnected", window.WalletState.isConnected ? "true" : "false");
 
                         const currentAccessToken = Module.GetAccessToken();
                         if (currentAccessToken) {
@@ -205,7 +203,7 @@ Module.AuthenticateWallet = async function () {
             window.WalletState.isAuthenticated = true;
             
             // Gửi message về Unity khi xác thực thành công
-            // gameInstance.SendMessage("WalletAPIManager", "OnWalletAuthenticated", window.WalletState.isAuthenticated);
+            gameInstance.SendMessage("WalletAPIManager", "OnWalletConnected", window.WalletState.isConnected ? "true" : "false");
             
             return Promise.resolve(); // Xác thực thành công
         } else {
