@@ -113,7 +113,7 @@ Module.AuthenticateWallet = async function () {
 
             // Khởi động auto refresh token
             Module.AutoRefreshToken();
-
+            console.log(data.access_token);
             window.WalletState.isAuthenticated = true;
             
             // Gửi message về Unity khi xác thực thành công
