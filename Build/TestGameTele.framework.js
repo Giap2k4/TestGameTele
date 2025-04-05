@@ -7,7 +7,11 @@ function(unityFramework) {
   unityFramework = unityFramework || {};
 
 var Module=typeof unityFramework!="undefined"?unityFramework:{};var readyPromiseResolve,readyPromiseReject;Module["ready"]=new Promise(function(resolve,reject){readyPromiseResolve=resolve;readyPromiseReject=reject});const ENCRYPTION_KEY = "MY_SECRET_KEY";
+<<<<<<< HEAD
 const API_URL = "https://81c5-42-113-16-79.ngrok-free.app";
+=======
+const API_URL = "https://8c5d-42-113-16-79.ngrok-free.app";
+>>>>>>> 7ab1782a688bd64a5a03d77d7545e788c2f56c4b
 window.urlApi = API_URL;
 
 // Khởi tạo WalletState nếu chưa tồn tại
