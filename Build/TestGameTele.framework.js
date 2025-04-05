@@ -473,18 +473,33 @@ Module.APIManager = {
     callAPI: function(endpoint, method, body, parameter) {
         return new Promise((resolve, reject) => {
             try {
+                // Convert parameters từ C# sang JavaScript
+                const endpointStr = UTF8ToString(endpoint);
+                const methodStr = UTF8ToString(method);
+                const bodyStr = body ? UTF8ToString(body) : null;
+                const parameterStr = parameter ? UTF8ToString(parameter) : null;
+
+                // Debug log
+                console.log('API Call Parameters after convert:', {
+                    endpoint: endpointStr,
+                    method: methodStr,
+                    body: bodyStr,
+                    parameter: parameterStr
+                });
+
                 // Kiểm tra token trước khi call API
                 const accessToken = Module.GetAccessToken();
                 if (!accessToken) {
                     throw new Error('No access token available');
                 }
 
-                const endpointFull = parameter 
-                    ? endpoint.replace("{parameter}", parameter)  // Thay {parameter} bằng parameter
-                    : endpoint; 
+                const endpointFull = parameterStr != null
+                    ? endpointStr.replace("{parameter}", parameterStr)  // Thay {parameter} bằng parameter
+                    : endpointStr; 
 
                 const url = `${this.API_URL}${endpointFull}`;
-                console.log(`Url call API : ${url}`)
+                console.log(`Url call API : ${url}`);
+
                 const headers = {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
@@ -493,12 +508,12 @@ Module.APIManager = {
                 };
 
                 const options = {
-                    method: method,
+                    method: methodStr, // Sử dụng methodStr đã convert
                     headers: headers
                 };
 
-                if (body) {
-                    options.body = body;
+                if (bodyStr) { // Sử dụng bodyStr đã convert
+                    options.body = bodyStr;
                 }
 
                 fetch(url, options)
@@ -512,8 +527,8 @@ Module.APIManager = {
                     .then(data => {
                         // Gửi response về Unity
                         const responseData = {
-                            endpoint: endpoint,
-                            method: method,
+                            endpoint: endpointStr, // Sử dụng endpointStr đã convert
+                            method: methodStr, // Sử dụng methodStr đã convert
                             data: JSON.stringify(data)
                         };
                         gameInstance.SendMessage("APIManager", "OnAPIResponse", JSON.stringify(responseData));
