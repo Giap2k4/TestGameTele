@@ -139,6 +139,7 @@ Module.ConnectPhantomWallet = function () {
 
                         const currentAccessToken = Module.GetAccessToken();
                         if (currentAccessToken) {
+                            
                             try {
                                 const tokenParts = currentAccessToken.split('.');
                                 if (tokenParts.length === 3) {
@@ -148,11 +149,13 @@ Module.ConnectPhantomWallet = function () {
                                     
                                     if (expirationTime - currentTime > 5 * 60 * 1000) {
                                         window.WalletState.isAuthenticated = true;
+                                        gameInstance.SendMessage("WalletAPIManager", "OnWalletConnected", window.WalletState.isConnected ? "true" : "false");
                                         Module.AutoRefreshToken();
                                         resolve();
                                         return;
                                     }
                                 }
+
                             } catch (error) {
                                 console.error('Error checking token validity:', error);
                             }
@@ -481,7 +484,7 @@ Module.APIManager = {
                     : endpoint; 
 
                 const url = `${this.API_URL}${endpointFull}`;
-		console.log(url);
+                console.log(`Url call API : ${url}`)
                 const headers = {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
