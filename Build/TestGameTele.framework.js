@@ -7,7 +7,7 @@ function(unityFramework) {
   unityFramework = unityFramework || {};
 
 var Module=typeof unityFramework!="undefined"?unityFramework:{};var readyPromiseResolve,readyPromiseReject;Module["ready"]=new Promise(function(resolve,reject){readyPromiseResolve=resolve;readyPromiseReject=reject});const ENCRYPTION_KEY = "MY_SECRET_KEY";
-const API_URL = "https://ec2e-42-113-16-79.ngrok-free.app";
+const API_URL = "https://81c5-42-113-16-79.ngrok-free.app";
 window.urlApi = API_URL;
 
 // Khởi tạo WalletState nếu chưa tồn tại
@@ -113,7 +113,7 @@ Module.AuthenticateWallet = async function () {
 
             // Khởi động auto refresh token
             Module.AutoRefreshToken();
-            
+
             window.WalletState.isAuthenticated = true;
             
             // Gửi message về Unity khi xác thực thành công
@@ -379,7 +379,7 @@ if (!window.Module) {
 
 // API Manager
 Module.APIManager = {
-    API_URL: "https://81c5-42-113-16-79.ngrok-free.app", // thay đổi khi chạy dự án thật
+    API_URL: "https://8c5d-42-113-16-79.ngrok-free.app", // thay đổi khi chạy dự án thật
     
     callAPI: function(endpoint, method, body, parameter) {
         return new Promise((resolve, reject) => {
