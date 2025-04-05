@@ -500,18 +500,6 @@ Module.APIManager = {
                 const url = `${this.API_URL}${endpointFull}`;
                 console.log(`Url call API : ${url}`);
 
-
-                const endpointFull = parameter != null
-                    ? endpoint.replace("{parameter}", parameter)  // Thay {parameter} bằng parameter
-                    : endpoint; 
-
-                const url = `${this.API_URL}${endpointFull}`;
-                console.log(`Url call API : ${url}`);
-		    console.log(`Endpoint : ${endpoint}`);
-		    console.log(`Method : ${method}`);
-		    console.log(`body : ${body}`);
-		    console.log(`Param : ${parameter}`);
-
                 const headers = {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
