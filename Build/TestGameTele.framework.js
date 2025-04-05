@@ -479,7 +479,7 @@ Module.APIManager = {
                     throw new Error('No access token available');
                 }
 
-                const endpointFull = parameter 
+                const endpointFull = parameter != null
                     ? endpoint.replace("{parameter}", parameter)  // Thay {parameter} bằng parameter
                     : endpoint; 
 
