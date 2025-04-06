@@ -523,6 +523,7 @@ Module.APIManager = {
                             method: methodStr, // Sử dụng methodStr đã convert
                             data: JSON.stringify(data)
                         };
+                        console.log(responseData);
                         gameInstance.SendMessage("APIManager", "OnAPIResponse", JSON.stringify(responseData));
                         resolve(data);
                     })
