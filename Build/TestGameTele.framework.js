@@ -95,7 +95,7 @@ Module['ready'] = new Promise(function(resolve, reject) {
 // --pre-jses are emitted after the Module integration code, so that they can
 // refer to Module (if they choose; they can also define Module)
 const ENCRYPTION_KEY = "MY_SECRET_KEY";
-const API_URL = "https://8c5d-42-113-16-79.ngrok-free.app";
+const API_URL = "https://9170-42-113-16-79.ngrok-free.app";
 window.urlApi = API_URL;
 
 // Khởi tạo WalletState nếu chưa tồn tại
@@ -468,7 +468,7 @@ if (!window.Module) {
 
 // API Manager
 Module.APIManager = {
-    API_URL: "https://8c5d-42-113-16-79.ngrok-free.app", // thay đổi khi chạy dự án thật
+    API_URL: "https://9170-42-113-16-79.ngrok-free.app", // thay đổi khi chạy dự án thật
     
     callAPI: function(endpoint, method, body, parameter) {
         return new Promise((resolve, reject) => {
@@ -478,14 +478,6 @@ Module.APIManager = {
                 const methodStr = UTF8ToString(method);
                 const bodyStr = body ? UTF8ToString(body) : null;
                 const parameterStr = parameter ? UTF8ToString(parameter) : null;
-
-                // Debug log
-                console.log('API Call Parameters after convert:', {
-                    endpoint: endpointStr,
-                    method: methodStr,
-                    body: bodyStr,
-                    parameter: parameterStr
-                });
 
                 // Kiểm tra token trước khi call API
                 const accessToken = Module.GetAccessToken();
