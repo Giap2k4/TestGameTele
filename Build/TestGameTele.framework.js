@@ -489,7 +489,7 @@ Module.APIManager = {
                     ? endpointStr.replace("{parameter}", parameterStr)  // Thay {parameter} bằng parameter
                     : endpointStr; 
 
-                const url = `${this.API_URL}/api/v1/${endpointFull}`;
+                const url = `${this.API_URL}/api/v1${endpointFull}`;
                 console.log(`Url call API : ${url}`);
 
                 const headers = {
