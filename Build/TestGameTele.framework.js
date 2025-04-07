@@ -47,7 +47,7 @@ Module.ConnectPhantomWallet = function () {
                         window.WalletState.isConnected = true;
                         window.WalletState.isConnecting = false;
 
-                        if (localStorage.getItem('wallet_address') !== window.WalletState.walletAddress || localStorage.getItem('wallet_address') !== null) {
+                        if (localStorage.getItem('wallet_address') !== window.WalletState.walletAddress || localStorage.getItem('wallet_address') === null) {
                             try {
                                 localStorage.setItem('wallet_address', window.WalletState.walletAddress);
                                 alert('Wallet connected: ' + window.WalletState.walletAddress);
