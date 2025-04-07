@@ -51,6 +51,8 @@ Module.ConnectPhantomWallet = function () {
                             try {
                                 localStorage.setItem('wallet_address', window.WalletState.walletAddress);
                                 alert('Wallet connected: ' + window.WalletState.walletAddress);
+                                Module.ClearTokens();
+
                                 await Module.AuthenticateWallet();
                                 resolve();
                                 return;
