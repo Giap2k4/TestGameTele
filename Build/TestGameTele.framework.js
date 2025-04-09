@@ -405,6 +405,11 @@ Module.APIManager = {
                 const bodyStr = body ? UTF8ToString(body) : null;
                 const parameterStr = parameter ? UTF8ToString(parameter) : null;
 
+                console.log("➡️ endpointStr:", endpointStr);
+                console.log("➡️ methodStr:", methodStr);
+                console.log("➡️ bodyStr:", bodyStr);
+                console.log("➡️ parameterStr:", parameterStr);
+
                 // Kiểm tra token trước khi call API
                 const accessToken = Module.GetAccessToken();
                 if (!accessToken) {
