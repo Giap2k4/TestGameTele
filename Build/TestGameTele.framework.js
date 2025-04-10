@@ -409,6 +409,7 @@ Module.APIManager = {
                 console.log("➡️ methodStr:", methodStr);
                 console.log("➡️ bodyStr:", bodyStr);
                 console.log("➡️ parameterStr:", parameterStr);
+                console.log("➡️ parameter:", parameter);
 
                 // Kiểm tra token trước khi call API
                 const accessToken = Module.GetAccessToken();
