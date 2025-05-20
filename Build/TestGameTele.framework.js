@@ -218,7 +218,7 @@ Module.AuthenticateWallet = async function () {
             // Gửi message về Unity khi xác thực thành công
             gameInstance.SendMessage("WalletAPIManager", "OnWalletConnected", window.WalletState.isConnected ? "true" : "false");
 
-            gameInstance.SendMessage("WalletAPIManager", "OnReceiveToken", data.access_token);
+            gameInstance.SendMessage("APIManager", "OnReceiveToken", data.access_token);
             
             return Promise.resolve(); // Xác thực thành công
             
