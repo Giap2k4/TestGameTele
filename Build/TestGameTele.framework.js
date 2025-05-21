@@ -222,7 +222,7 @@ Module.AuthenticateWallet = async function () {
             // const encodedToken = btoa(data.access_token);
             // gameInstance.SendMessage("APIManager", "OnReceiveToken", encodedToken);
 
-            gameInstance.SendMessage("WalletAPIManager", "OnReceiveToken", data.access_token);
+            // gameInstance.SendMessage("WalletAPIManager", "OnReceiveToken", data.access_token);
             
             return Promise.resolve(); // Xác thực thành công
             
@@ -380,7 +380,7 @@ Module.RefreshToken = function () {
             .then(data => {
                 if (data.access_token) {
                     Module.SetAccessToken(data.access_token);
-                    gameInstance.SendMessage("WalletAPIManager", "OnReceiveToken", data.access_token);
+                    // gameInstance.SendMessage("WalletAPIManager", "OnReceiveToken", data.access_token);
                     resolve(data.access_token);
                 } else {
                     throw new Error('Invalid refresh response');
