@@ -13,7 +13,7 @@ if (!window.Module) {
 
 // API Manager
 Module.APIManager = {
-    API_URL: "https://7be9-42-114-121-102.ngrok-free.app", // thay đổi khi chạy dự án thật
+    API_URL: "https://3edb-42-114-121-102.ngrok-free.app", // thay đổi khi chạy dự án thật
     
     callAPI: function(endpoint, method, body, parameter) {
         return new Promise((resolve, reject) => {
@@ -91,7 +91,7 @@ Module.APIManager = {
     }
 };
 const ENCRYPTION_KEY = "MY_SECRET_KEY";
-const API_URL = "https://7be9-42-114-121-102.ngrok-free.app";
+const API_URL = "https://3edb-42-114-121-102.ngrok-free.app";
 window.urlApi = API_URL;
 
 // Khởi tạo WalletState nếu chưa tồn tại
