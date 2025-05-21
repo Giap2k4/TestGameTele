@@ -220,7 +220,7 @@ Module.AuthenticateWallet = async function () {
 
             // Lưu token và gửi về Unity
             Module.SetAccessToken(data.access_token);
-            // gameInstance.SendMessage("APIManager", "OnTokenStored", data.access_token);
+            
             
             return Promise.resolve(); // Xác thực thành công
             
@@ -379,7 +379,7 @@ Module.RefreshToken = function () {
                 if (data.access_token) {
                     Module.SetAccessToken(data.access_token);
                     // Gửi token mới về Unity
-                    // gameInstance.SendMessage("APIManager", "OnTokenStored", data.access_token);
+                    
                     resolve(data.access_token);
                 } else {
                     throw new Error('Invalid refresh response');
