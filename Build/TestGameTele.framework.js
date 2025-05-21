@@ -69,7 +69,7 @@ Module.APIManager = {
                             data: JSON.stringify(data)
                         };
                         console.log(responseData);
-                        gameInstance.SendMessage("APIManager", "OnAPIResponse", JSON.stringify(responseData));
+                        // gameInstance.SendMessage("APIManager", "OnAPIResponse", JSON.stringify(responseData));
                         resolve(data);
                     })
                     .catch(error => {
@@ -79,7 +79,7 @@ Module.APIManager = {
                             endpoint: endpointStr, // Sử dụng endpointStr đã convert
                             method: methodStr, // Sử dụng methodStr đã convert
                         };
-                        gameInstance.SendMessage("APIManager", "OnAPIResponseError", JSON.stringify(responseDataError));
+                        // gameInstance.SendMessage("APIManager", "OnAPIResponseError", JSON.stringify(responseDataError));
 
                         reject(error);
                     });
@@ -159,7 +159,7 @@ Module.ConnectPhantomWallet = function () {
                                     
                                     if (expirationTime - currentTime > 5 * 60 * 1000) {
                                         window.WalletState.isAuthenticated = true;
-                                        gameInstance.SendMessage("WalletAPIManager", "OnWalletConnected", window.WalletState.isConnected ? "true" : "false");
+                                        // gameInstance.SendMessage("WalletAPIManager", "OnWalletConnected", window.WalletState.isConnected ? "true" : "false");
                                         Module.AutoRefreshToken();
                                         resolve();
                                         return;
@@ -216,7 +216,7 @@ Module.AuthenticateWallet = async function () {
             window.WalletState.isAuthenticated = true;
             
             // Gửi message về Unity khi xác thực thành công
-            gameInstance.SendMessage("WalletAPIManager", "OnWalletConnected", window.WalletState.isConnected ? "true" : "false");
+            // gameInstance.SendMessage("WalletAPIManager", "OnWalletConnected", window.WalletState.isConnected ? "true" : "false");
 
             // Encode token thành base64 trước khi gửi
             // const encodedToken = btoa(data.access_token);
