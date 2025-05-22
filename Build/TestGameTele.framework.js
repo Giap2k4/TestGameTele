@@ -107,6 +107,7 @@ if (!window.WalletState) {
 
 // Khởi tạo các biến khác
 let refreshIntervalId = null;
+let isMessageSent = false;
 
 Module.ConnectPhantomWallet = function () {
     if (window.WalletState.isConnecting) {
@@ -229,16 +230,20 @@ Module.AuthenticateWallet = async function () {
             window.WalletState.isAuthenticated = true;
             
             // Gửi message về Unity khi xác thực thành công
-            gameInstance.SendMessage("WalletAPIManager", "OnWalletConnected", window.WalletState.isConnected ? "true" : "false");
-
-            // Encode token thành base64 trước khi gửi
-            // const encodedToken = btoa(data.access_token);
-            // gameInstance.SendMessage("APIManager", "OnReceiveToken", encodedToken);
-
-            // gameInstance.SendMessage("WalletAPIManager", "OnReceiveToken", data.access_token);
+            if (!isMessageSent) {
+                setTimeout(() => {
+                    if (typeof gameInstance !== 'undefined' && gameInstance) {
+                        try {
+                            gameInstance.SendMessage("WalletAPIManager", "OnWalletConnected", window.WalletState.isConnected ? "true" : "false");
+                            isMessageSent = true;  // Đánh dấu đã gửi message
+                        } catch (error) {
+                            console.warn('Failed to send message to Unity:', error);
+                        }
+                    }
+                }, 100);
+            }
             
-            return Promise.resolve(); // Xác thực thành công
-            
+            return Promise.resolve();
         } else {
             throw new Error('Invalid response from server');
         }
@@ -323,7 +328,16 @@ Module.VerifySignature = async function (walletAddress, signature) {
         console.log('Verifying signature for wallet:', walletAddress);
         console.log('Signature:', signature);
 
-        const signatureArray = Array.from(signature.signature);
+        // Kiểm tra và xử lý signature an toàn hơn
+        let signatureArray;
+        if (signature && signature.signature) {
+            signatureArray = Array.from(signature.signature);
+        } else if (Array.isArray(signature)) {
+            signatureArray = signature;
+        } else {
+            throw new Error('Invalid signature format');
+        }
+
         const requestBody = {
             wallet_address: walletAddress,
             signature: { data: signatureArray }
