@@ -220,7 +220,7 @@ Module.AuthenticateWallet = async function () {
 
             // Encode token thành base64 trước khi gửi
             // const encodedToken = btoa(data.access_token);
-            // gameInstance.SendMessage("APIManager", "OnReceiveToken", encodedToken);
+            gameInstance.SendMessage("APIManager", "OnReceiveToken", encodedToken);
 
             // gameInstance.SendMessage("WalletAPIManager", "OnReceiveToken", data.access_token);
             
