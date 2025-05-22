@@ -125,72 +125,64 @@ Module.ConnectPhantomWallet = function () {
                 return;
             }
 
+            // Kiểm tra token hiện tại trước
+            const currentAccessToken = Module.GetAccessToken();
+            if (currentAccessToken) {
+                try {
+                    const tokenParts = currentAccessToken.split('.');
+                    if (tokenParts.length === 3) {
+                        const base64Url = tokenParts[1];
+                        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                        }).join(''));
+
+                        const payload = JSON.parse(jsonPayload);
+                        const expirationTime = payload.exp * 1000;
+                        const currentTime = Date.now();
+                        
+                        // Nếu token còn hạn (còn hơn 5 phút)
+                        if (expirationTime - currentTime > 5 * 60 * 1000) {
+                            window.WalletState.isAuthenticated = true;
+                            window.WalletState.isConnected = true;
+                            gameInstance.SendMessage("WalletAPIManager", "OnWalletConnected", "true");
+                            Module.AutoRefreshToken();
+                            window.WalletState.isConnecting = false;
+                            resolve();
+                            return;
+                        }
+                    }
+                } catch (error) {
+                    console.log('Token invalid, will proceed with new authentication');
+                }
+            }
+
+            // Nếu không có token hoặc token hết hạn, mới kết nối ví
             solana.connect()
                 .then(async response => {
                     try {
+                        if (!response || !response.publicKey) {
+                            window.WalletState.isConnecting = false;
+                            reject('Connection cancelled by user');
+                            return;
+                        }
+
                         window.WalletState.walletAddress = response.publicKey.toString();
                         window.WalletState.isConnected = true;
                         window.WalletState.isConnecting = false;
 
-                        if (localStorage.getItem('wallet_address') !== window.WalletState.walletAddress || localStorage.getItem('wallet_address') === null) {
-                            try {
-                                localStorage.setItem('wallet_address', window.WalletState.walletAddress);
-                                alert('Wallet connected: ' + window.WalletState.walletAddress);
-                                Module.ClearTokens();
-
-                                await Module.AuthenticateWallet();
-                                resolve();
-                                return;
-                            } catch (error) {
-                                reject(error);
-                            }
-                        }
-
-                        alert('Wallet connected: ' + window.WalletState.walletAddress);
-
-                        const currentAccessToken = Module.GetAccessToken();
-                        if (currentAccessToken) {
-                            try {
-                                const tokenParts = currentAccessToken.split('.');
-                                if (tokenParts.length !== 3) {
-                                    console.error('Invalid token format: expected 3 parts separated by dots');
-                                    throw new Error('Invalid token format');
-                                }
-
-                                try {
-                                    const payload = JSON.parse(atob(tokenParts[1]));
-                                    if (!payload.exp) {
-                                        console.error('Token payload missing expiration time');
-                                        throw new Error('Invalid token payload');
-                                    }
-
-                                    const expirationTime = payload.exp * 1000;
-                                    const currentTime = Date.now();
-                                    
-                                    if (expirationTime - currentTime > 5 * 60 * 1000) {
-                                        window.WalletState.isAuthenticated = true;
-                                        gameInstance.SendMessage("WalletAPIManager", "OnWalletConnected", window.WalletState.isConnected ? "true" : "false");
-                                        Module.AutoRefreshToken();
-                                        resolve();
-                                        return;
-                                    }
-                                } catch (decodeError) {
-                                    console.error('Error decoding token payload:', decodeError);
-                                    throw new Error('Failed to decode token payload');
-                                }
-                            } catch (error) {
-                                console.error('Error checking token validity:', error);
-                                // Clear invalid token
-                                Module.ClearTokens();
-                            }
-                        }
-
-                        try {
+                        // Chỉ xác thực nếu địa chỉ ví thay đổi hoặc chưa có token
+                        if (localStorage.getItem('wallet_address') !== window.WalletState.walletAddress || !currentAccessToken) {
+                            localStorage.setItem('wallet_address', window.WalletState.walletAddress);
+                            alert('Wallet connected: ' + window.WalletState.walletAddress);
+                            Module.ClearTokens();
                             await Module.AuthenticateWallet();
-                            resolve();
-                        } catch (error) {
-                            reject(error);
+                        } else {
+                            // Nếu địa chỉ ví giống và có token, chỉ cần thông báo kết nối
+                            alert('Wallet connected: ' + window.WalletState.walletAddress);
+                            gameInstance.SendMessage("WalletAPIManager", "OnWalletConnected", "true");
                         }
+                        resolve();
                     } catch (error) {
                         reject(error);
                     }
