@@ -57,11 +57,11 @@
       }
 
       var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/TestGameTele.loader.js";
+      var loaderUrl = buildUrl + "/GameTele.loader.js";
       var config = {
-        dataUrl: buildUrl + "/TestGameTele.data",
-        frameworkUrl: buildUrl + "/TestGameTele.framework.js",
-        codeUrl: buildUrl + "/TestGameTele.wasm",
+        dataUrl: buildUrl + "/GameTele.data",
+        frameworkUrl: buildUrl + "/GameTele.framework.js",
+        codeUrl: buildUrl + "/GameTele.wasm",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "DefaultCompany",
         productName: "GameTele",
@@ -106,7 +106,6 @@
         createUnityInstance(canvas, config, (progress) => {
           progressBarFull.style.width = 100 * progress + "%";
               }).then((unityInstance) => {
-                window.gameInstance = unityInstance;
                 loadingBar.style.display = "none";
                 fullscreenButton.onclick = () => {
                   unityInstance.SetFullscreen(1);
