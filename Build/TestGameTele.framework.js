@@ -151,13 +151,16 @@ Module.ConnectPhantomWallet = function () {
                         if (currentAccessToken) {
                             try {
                                 const tokenParts = currentAccessToken.split('.');
+                              console.log('Token parts:', tokenParts);
                                 if (tokenParts.length !== 3) {
                                     console.error('Invalid token format: expected 3 parts separated by dots');
                                     throw new Error('Invalid token format');
                                 }
 
                                 try {
+                                  console.log('Attempting to decode payload:', tokenParts[1]);
                                     const payload = JSON.parse(atob(tokenParts[1]));
+                                  console.log('Decoded payload:', payload);
                                     if (!payload.exp) {
                                         console.error('Token payload missing expiration time');
                                         throw new Error('Invalid token payload');
@@ -180,7 +183,11 @@ Module.ConnectPhantomWallet = function () {
                             } catch (error) {
                                 console.error('Error checking token validity:', error);
                                 // Clear invalid token
-                                Module.ClearTokens();
+                                if (!currentAccessToken || typeof currentAccessToken !== 'string') {
+                                    console.error('Invalid token type:', typeof currentAccessToken);
+                                    Module.ClearTokens();
+                                    return;
+                                }
                             }
                         }
 
