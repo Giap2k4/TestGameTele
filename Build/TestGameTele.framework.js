@@ -239,7 +239,7 @@ Module.AuthenticateWallet = async function () {
                             console.warn('Failed to send message to Unity:', error);
                         }
                     }
-                }, 100);
+                }, 1000);
             }
             
             return Promise.resolve();
