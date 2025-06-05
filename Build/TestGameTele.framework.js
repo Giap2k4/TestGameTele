@@ -25,7 +25,9 @@ Module.ConnectToSocket = function() {
             console.log("📝 Creating socket.io script...");
             // Create and load Socket.IO script
             let script = document.createElement("script");
-            script.src = "https://cdn.socket.io/4.7.2/socket.io.min.js";
+            script.type = "text/javascript";
+            // Thử dùng phiên bản cũ hơn của socket.io
+            script.src = "https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.min.js";
             
             script.onload = () => {
                 console.log("📦 Socket.IO script loaded!");
@@ -71,7 +73,9 @@ Module.ConnectToSocket = function() {
 
             script.onerror = (error) => {
                 console.error("❌ Failed to load Socket.IO script", error);
-                reject(error);
+                // Thử load lại với URL khác
+                console.log("🔄 Trying alternative CDN...");
+                script.src = "https://cdn.socket.io/4.7.2/socket.io.min.js";
             };
 
             console.log("📥 Appending socket.io script to document...");
