@@ -6,21 +6,30 @@ var unityFramework = (() => {
 function(unityFramework) {
   unityFramework = unityFramework || {};
 
-var Module=typeof unityFramework!="undefined"?unityFramework:{};var readyPromiseResolve,readyPromiseReject;Module["ready"]=new Promise(function(resolve,reject){readyPromiseResolve=resolve;readyPromiseReject=reject});Module.ConnectToSocket = function() {
+var Module=typeof unityFramework!="undefined"?unityFramework:{};var readyPromiseResolve,readyPromiseReject;Module["ready"]=new Promise(function(resolve,reject){readyPromiseResolve=resolve;readyPromiseReject=reject});// Thêm biến để theo dõi trạng thái kết nối
+var SocketState = {
+    isConnected: false,
+    isConnecting: false
+};
+
+Module.ConnectToSocket = function() {
     return new Promise((resolve, reject) => {
         try {
             // Get authentication token
             const token = Module.GetAccessToken();
+            console.log("🔍 Checking token:", token ? "Token exists" : "No token");
             if (!token) {
                 throw new Error('No authentication token found');
             }
 
+            console.log("📝 Creating socket.io script...");
             // Create and load Socket.IO script
             let script = document.createElement("script");
             script.src = "https://cdn.socket.io/4.7.2/socket.io.min.js";
             
             script.onload = () => {
                 console.log("📦 Socket.IO script loaded!");
+                console.log("🔌 Attempting to connect to socket server...");
 
                 // Initialize Socket.IO connection with token
                 const socket = io("wss://purrfect-chaos-production.up.railway.app", {
@@ -29,14 +38,18 @@ var Module=typeof unityFramework!="undefined"?unityFramework:{};var readyPromise
                     }
                 });
 
+                console.log("🔄 Socket instance created, waiting for connection...");
+
                 // Setup basic event handlers
                 socket.on("connect", () => {
                     console.log("✅ Connected");
+                    window.gameSocket = socket;
                     resolve(true);
                 });
 
                 socket.on("connect_error", (err) => {
                     console.error("❌ Connect error", err);
+                    console.log("🔑 Token used:", token);
                     reject(err);
                 });
 
@@ -54,9 +67,6 @@ var Module=typeof unityFramework!="undefined"?unityFramework:{};var readyPromise
                         console.error(`❌ Error processing event ${eventType}:`, error);
                     }
                 });
-
-                // Store socket instance globally
-                window.gameSocket = socket;
             };
 
             script.onerror = (error) => {
@@ -64,6 +74,7 @@ var Module=typeof unityFramework!="undefined"?unityFramework:{};var readyPromise
                 reject(error);
             };
 
+            console.log("📥 Appending socket.io script to document...");
             // Append script to document head
             document.head.appendChild(script);
 
@@ -74,9 +85,14 @@ var Module=typeof unityFramework!="undefined"?unityFramework:{};var readyPromise
     });
 };
 
-// Thêm các hàm emit
+// Thêm hàm kiểm tra trạng thái kết nối
+Module.IsSocketConnected = function() {
+    return SocketState.isConnected;
+};
+
+// Sửa lại các hàm emit để kiểm tra trạng thái kết nối
 Module.EmitAttack = function(idAttack, tournamentId) {
-    if (!window.gameSocket) {
+    if (!SocketState.isConnected || !window.gameSocket) {
         console.error("❌ Socket not connected");
         return;
     }
@@ -91,7 +107,7 @@ Module.EmitAttack = function(idAttack, tournamentId) {
 };
 
 Module.EmitHeal = function(idHeal) {
-    if (!window.gameSocket) {
+    if (!SocketState.isConnected || !window.gameSocket) {
         console.error("❌ Socket not connected");
         return;
     }
