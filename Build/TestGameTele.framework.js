@@ -6,7 +6,7 @@ var unityFramework = (() => {
 function(unityFramework) {
   unityFramework = unityFramework || {};
 
-var Module=typeof unityFramework!="undefined"?unityFramework:{};var readyPromiseResolve,readyPromiseReject;Module["ready"]=new Promise(function(resolve,reject){readyPromiseResolve=resolve;readyPromiseReject=reject});// Thêm biến để theo dõi trạng thái kết nối
+var Module=typeof unityFramework!="undefined"?unityFramework:{};var readyPromiseResolve,readyPromiseReject;Module["ready"]=new Promise(function(resolve,reject){readyPromiseResolve=resolve;readyPromiseReject=reject});// Initialize SocketState
 var SocketState = {
     isConnected: false,
     isConnecting: false
@@ -45,6 +45,7 @@ Module.ConnectToSocket = function() {
                 // Setup basic event handlers
                 socket.on("connect", () => {
                     console.log("✅ Connected");
+                    SocketState.isConnected = true;
                     window.gameSocket = socket;
                     resolve(true);
                 });
@@ -53,6 +54,11 @@ Module.ConnectToSocket = function() {
                     console.error("❌ Connect error", err);
                     console.log("🔑 Token used:", token);
                     reject(err);
+                });
+
+                socket.on("disconnect", () => {
+                    console.log("❌ Disconnected");
+                    SocketState.isConnected = false;
                 });
 
                 // Handle all events
@@ -96,6 +102,11 @@ Module.IsSocketConnected = function() {
 
 // Sửa lại các hàm emit để kiểm tra trạng thái kết nối
 Module.EmitAttack = function(idAttack, tournamentId) {
+    console.log("🔍 Checking socket state:", {
+        isConnected: SocketState.isConnected,
+        hasSocket: !!window.gameSocket
+    });
+    
     if (!SocketState.isConnected || !window.gameSocket) {
         console.error("❌ Socket not connected");
         return;
