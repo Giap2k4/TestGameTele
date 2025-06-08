@@ -226,6 +226,16 @@ const ENCRYPTION_KEY = "MY_SECRET_KEY";
 // const API_URL = "https://3edb-42-114-121-102.ngrok-free.app";
 // window.urlApi = API_URL;
 
+// Import TweetNaCl.js
+const nacl = (function() {
+    const scriptElement = document.createElement('script');
+    scriptElement.src = 'https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl.min.js';
+    document.head.appendChild(scriptElement);
+    return new Promise((resolve) => {
+        scriptElement.onload = () => resolve(window.nacl);
+    });
+})();
+
 // Sử dụng BASE_URL và SOCKET_URL từ APIManagerPre.jspre
 window.urlApi = BASE_URL;
 
@@ -251,69 +261,109 @@ Module.IsMobileDevice = function() {
 
 // Thêm hàm xử lý deep linking cho mobile
 Module.HandleMobileConnection = async function() {
-    const redirectUrl = encodeURIComponent(window.location.href);
-    const state = Math.random().toString(36).substring(7); // Tạo state ngẫu nhiên
-    
-    // Lưu state để verify khi callback
-    sessionStorage.setItem('phantom_state', state);
-    
-    // URL cho deep linking với state và scope
-    const phantomUrl = `https://phantom.app/ul/v1/connect?app_url=${redirectUrl}&dapp_encryption_public_key=${encodeURIComponent(ENCRYPTION_KEY)}&redirect_link=${redirectUrl}&state=${state}`;
-    
-    // URL cho app store
-    const appStoreUrl = 'https://apps.apple.com/app/phantom-solana-wallet/id1598432977';
-    const playStoreUrl = 'https://play.google.com/store/apps/details?id=app.phantom';
-    
     try {
         const isAndroid = /Android/i.test(navigator.userAgent);
         const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
         
-        // Thêm listener để xử lý khi app gọi lại
-        window.addEventListener('focus', async () => {
-            try {
-                // Lấy params từ URL khi quay lại
-                const urlParams = new URLSearchParams(window.location.search);
-                const returnState = urlParams.get('state');
-                const phantomPublicKey = urlParams.get('phantom_encryption_public_key');
-                const data = urlParams.get('data');
-                
-                // Kiểm tra state có khớp không
-                if (returnState === sessionStorage.getItem('phantom_state')) {
-                    // Xóa state đã sử dụng
-                    sessionStorage.removeItem('phantom_state');
-                    
-                    if (phantomPublicKey && data) {
-                        // Giải mã data từ Phantom
-                        const decryptedData = await Module.DecryptPhantomData(data, phantomPublicKey);
-                        
-                        if (decryptedData && decryptedData.public_key) {
-                            // Lưu địa chỉ ví
-                            window.WalletState.walletAddress = decryptedData.public_key;
-                            window.WalletState.isConnected = true;
-                            
-                            // Tiến hành xác thực
-                            await Module.AuthenticateWallet();
-                            
-                            // Gửi thông báo kết nối thành công về Unity
-                            gameInstance.SendMessage("WalletAPIManager", "OnWalletConnected", "true");
-                        }
-                    }
-                }
-            } catch (error) {
-                console.error('Error handling callback:', error);
-                throw error;
-            }
+        // Tạo URL cho deep link
+        const dappKeyPair = nacl.box.keyPair();
+        const sharedSecretDapp = Buffer.from(dappKeyPair.secretKey).toString('hex');
+        const dappPublicKey = Buffer.from(dappKeyPair.publicKey).toString('hex');
+        
+        // Lưu secret key để sau này giải mã
+        sessionStorage.setItem('dapp_secret_key', sharedSecretDapp);
+        
+        // Tạo URL parameters
+        const params = new URLSearchParams({
+            dapp_encryption_public_key: dappPublicKey,
+            redirect_url: window.location.href,
+            app_url: window.location.origin,
+            cluster: 'mainnet'  // hoặc 'devnet' tùy môi trường của bạn
         });
         
-        if (isAndroid) {
-            window.location.href = `phantom://ul/v1/connect?app_url=${redirectUrl}&dapp_encryption_public_key=${encodeURIComponent(ENCRYPTION_KEY)}&redirect_link=${redirectUrl}&state=${state}`;
-        } else if (isIOS) {
-            window.location.href = phantomUrl;
-        } else {
-            throw new Error('Thiết bị không được hỗ trợ');
-        }
+        // Tạo deep link URL
+        const deepLink = isAndroid 
+            ? `phantom://ul/v1/connect?${params.toString()}`
+            : `https://phantom.app/ul/v1/connect?${params.toString()}`;
+            
+        console.log('Opening Phantom with URL:', deepLink);
+        
+        // Thêm listener để xử lý khi user quay lại từ Phantom
+        const handleReturn = async () => {
+            console.log('App returned from Phantom');
+            
+            try {
+                const url = new URL(window.location.href);
+                const params = new URLSearchParams(url.search);
+                
+                // Lấy data từ URL parameters
+                const phantomEncryptionPublicKey = params.get('phantom_encryption_public_key');
+                const nonce = params.get('nonce');
+                const data = params.get('data');
+                
+                if (!phantomEncryptionPublicKey || !nonce || !data) {
+                    console.log('Missing required parameters');
+                    return;
+                }
+                
+                console.log('Received data from Phantom:', {
+                    phantomEncryptionPublicKey,
+                    nonce,
+                    data
+                });
+                
+                // Lấy secret key đã lưu
+                const dappSecretKey = sessionStorage.getItem('dapp_secret_key');
+                if (!dappSecretKey) {
+                    throw new Error('No dapp secret key found');
+                }
+                
+                // Giải mã data
+                const decryptedData = nacl.box.open(
+                    Buffer.from(data, 'hex'),
+                    Buffer.from(nonce, 'hex'),
+                    Buffer.from(phantomEncryptionPublicKey, 'hex'),
+                    Buffer.from(dappSecretKey, 'hex')
+                );
+                
+                if (!decryptedData) {
+                    throw new Error('Failed to decrypt data');
+                }
+                
+                const decodedData = JSON.parse(Buffer.from(decryptedData).toString());
+                console.log('Decoded data:', decodedData);
+                
+                // Lưu địa chỉ ví
+                if (decodedData.public_key) {
+                    window.WalletState.walletAddress = decodedData.public_key;
+                    window.WalletState.isConnected = true;
+                    
+                    // Tiến hành xác thực
+                    await Module.AuthenticateWallet();
+                    
+                    // Gửi thông báo kết nối thành công về Unity
+                    gameInstance.SendMessage("WalletAPIManager", "OnWalletConnected", "true");
+                }
+                
+                // Xóa secret key sau khi sử dụng
+                sessionStorage.removeItem('dapp_secret_key');
+                
+                // Remove listener
+                window.removeEventListener('focus', handleReturn);
+            } catch (error) {
+                console.error('Error handling return from Phantom:', error);
+                gameInstance.SendMessage("WalletAPIManager", "OnWalletConnected", "false");
+            }
+        };
+        
+        // Thêm listener để xử lý khi app quay lại
+        window.addEventListener('focus', handleReturn);
+        
+        // Mở Phantom app
+        window.location.href = deepLink;
+        
     } catch (error) {
-        console.error('Error handling mobile connection:', error);
+        console.error('Error in HandleMobileConnection:', error);
         throw error;
     }
 };
