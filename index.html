@@ -135,43 +135,31 @@
       html, body {
         margin: 0;
         padding: 0;
-        overflow: hidden;
         height: 100%;
         background: #231F20;
-        display: flex;
-        flex-direction: column;
+        overflow: hidden;
       }
 
       #unity-container {
-        flex: 1;
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
       }
 
-      canvas {
+      canvas#unity-canvas {
         display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
       }
 
       #unity-footer {
-        /* height: 40px; */
         display: none;
-        /* justify-content: center;
-        align-items: center;
-        background-color: #000;
-        z-index: 10; */
-      }
-
-      #unity-warning {
-        position: absolute;
-        top: 0;
-        width: 100%;
-        text-align: center;
-        z-index: 20;
       }
     </style>
+
   </head>
   <body>
     <div id="unity-container" class="unity-desktop">
