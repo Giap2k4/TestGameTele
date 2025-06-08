@@ -138,6 +138,38 @@
         overflow: hidden;
         height: 100%;
         background: #231F20;
+        display: flex;
+        flex-direction: column;
+      }
+
+      #unity-container {
+        flex: 1;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      canvas {
+        display: block;
+      }
+
+      #unity-footer {
+        height: 40px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #000;
+        z-index: 10;
+      }
+
+      #unity-warning {
+        position: absolute;
+        top: 0;
+        width: 100%;
+        text-align: center;
+        z-index: 20;
       }
     </style>
   </head>
@@ -151,11 +183,11 @@
         </div>
       </div>
       <div id="unity-warning"></div>
-      <div id="unity-footer">
-        <div id="unity-webgl-logo"></div>
-        <div id="unity-fullscreen-button"></div>
-        <!-- <div id="unity-build-title">GameTele</div> -->
-      </div>
+    </div>
+    <div id="unity-footer">
+      <div id="unity-webgl-logo"></div>
+      <div id="unity-fullscreen-button"></div>
+      <!-- <div id="unity-build-title">GameTele</div> -->
     </div>
 
     <script>
@@ -198,8 +230,8 @@
       };
 
       function resizeCanvas() {
-        const aspect = 292 / 518; // tỉ lệ gốc
-        const height = window.innerHeight;
+        const aspect = 292 / 518;
+        const height = window.innerHeight - 40; // trừ chiều cao footer
         const width = height * aspect;
 
         canvas.style.height = height + "px";
@@ -211,7 +243,6 @@
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
         container.className = "unity-mobile";
         canvas.className = "unity-mobile";
-        // Có thể điều chỉnh thêm cho mobile nếu muốn
       } else {
         resizeCanvas();
         window.addEventListener("resize", resizeCanvas);
@@ -238,4 +269,3 @@
     </script>
   </body>
 </html>
-
