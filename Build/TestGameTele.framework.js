@@ -252,73 +252,81 @@ Module.IsMobileDevice = function() {
 // Thêm hàm xử lý deep linking cho mobile
 Module.HandleMobileConnection = async function() {
     const redirectUrl = encodeURIComponent(window.location.href);
+    const state = Math.random().toString(36).substring(7); // Tạo state ngẫu nhiên
     
-    // URL cho deep linking
-    const phantomUrl = `https://phantom.app/ul/browse/${redirectUrl}`;
+    // Lưu state để verify khi callback
+    sessionStorage.setItem('phantom_state', state);
+    
+    // URL cho deep linking với state và scope
+    const phantomUrl = `https://phantom.app/ul/v1/connect?app_url=${redirectUrl}&dapp_encryption_public_key=${encodeURIComponent(ENCRYPTION_KEY)}&redirect_link=${redirectUrl}&state=${state}`;
     
     // URL cho app store
     const appStoreUrl = 'https://apps.apple.com/app/phantom-solana-wallet/id1598432977';
     const playStoreUrl = 'https://play.google.com/store/apps/details?id=app.phantom';
     
     try {
-        // Phát hiện hệ điều hành mobile
         const isAndroid = /Android/i.test(navigator.userAgent);
         const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
         
+        // Thêm listener để xử lý khi app gọi lại
+        window.addEventListener('focus', async () => {
+            try {
+                // Lấy params từ URL khi quay lại
+                const urlParams = new URLSearchParams(window.location.search);
+                const returnState = urlParams.get('state');
+                const phantomPublicKey = urlParams.get('phantom_encryption_public_key');
+                const data = urlParams.get('data');
+                
+                // Kiểm tra state có khớp không
+                if (returnState === sessionStorage.getItem('phantom_state')) {
+                    // Xóa state đã sử dụng
+                    sessionStorage.removeItem('phantom_state');
+                    
+                    if (phantomPublicKey && data) {
+                        // Giải mã data từ Phantom
+                        const decryptedData = await Module.DecryptPhantomData(data, phantomPublicKey);
+                        
+                        if (decryptedData && decryptedData.public_key) {
+                            // Lưu địa chỉ ví
+                            window.WalletState.walletAddress = decryptedData.public_key;
+                            window.WalletState.isConnected = true;
+                            
+                            // Tiến hành xác thực
+                            await Module.AuthenticateWallet();
+                            
+                            // Gửi thông báo kết nối thành công về Unity
+                            gameInstance.SendMessage("WalletAPIManager", "OnWalletConnected", "true");
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error handling callback:', error);
+                throw error;
+            }
+        });
+        
         if (isAndroid) {
-            // Xử lý cho Android
-            try {
-                // Thử mở Phantom app
-                window.location.href = `phantom://browse/${redirectUrl}`;
-                
-                // Đợi một chút để xem app có mở không
-                await new Promise((resolve) => {
-                    const timeout = setTimeout(() => {
-                        // Nếu app không mở được, chuyển đến Play Store
-                        window.location.href = playStoreUrl;
-                        resolve();
-                    }, 1500);
-
-                    // Nếu app mở được, clear timeout
-                    window.addEventListener('blur', () => {
-                        clearTimeout(timeout);
-                        resolve();
-                    });
-                });
-            } catch (error) {
-                // Nếu có lỗi, chuyển đến Play Store
-                window.location.href = playStoreUrl;
-            }
+            window.location.href = `phantom://ul/v1/connect?app_url=${redirectUrl}&dapp_encryption_public_key=${encodeURIComponent(ENCRYPTION_KEY)}&redirect_link=${redirectUrl}&state=${state}`;
         } else if (isIOS) {
-            // Xử lý cho iOS
-            try {
-                // Thử mở Phantom app qua Universal Link
-                window.location.href = phantomUrl;
-                
-                // Đợi một chút để xem app có mở không
-                await new Promise((resolve) => {
-                    const timeout = setTimeout(() => {
-                        // Nếu app không mở được, chuyển đến App Store
-                        window.location.href = appStoreUrl;
-                        resolve();
-                    }, 1500);
-
-                    // Nếu app mở được, clear timeout
-                    window.addEventListener('blur', () => {
-                        clearTimeout(timeout);
-                        resolve();
-                    });
-                });
-            } catch (error) {
-                // Nếu có lỗi, chuyển đến App Store
-                window.location.href = appStoreUrl;
-            }
+            window.location.href = phantomUrl;
         } else {
-            // Nếu không phải Android hay iOS, thông báo không hỗ trợ
-            throw new Error('Thiết bị của bạn không được hỗ trợ. Vui lòng sử dụng Android hoặc iOS.');
+            throw new Error('Thiết bị không được hỗ trợ');
         }
     } catch (error) {
         console.error('Error handling mobile connection:', error);
+        throw error;
+    }
+};
+
+// Thêm hàm giải mã data từ Phantom
+Module.DecryptPhantomData = async function(encryptedData, phantomPublicKey) {
+    try {
+        // Giải mã data ở đây (sử dụng thư viện mã hóa phù hợp)
+        // Đây là một ví dụ, bạn cần implement phần giải mã thực tế
+        const decryptedData = JSON.parse(atob(encryptedData));
+        return decryptedData;
+    } catch (error) {
+        console.error('Error decrypting data:', error);
         throw error;
     }
 };
@@ -408,7 +416,7 @@ Module.ConnectPhantomWallet = function () {
                             alert('Wallet connected: ' + window.WalletState.walletAddress);
                             Module.ClearTokens();
                             await Module.AuthenticateWallet();
-                        } else {
+                        } else { 
                             // Nếu địa chỉ ví giống và có token, chỉ cần thông báo kết nối
                             alert('Wallet connected: ' + window.WalletState.walletAddress);
                             gameInstance.SendMessage("WalletAPIManager", "OnWalletConnected", "true");
