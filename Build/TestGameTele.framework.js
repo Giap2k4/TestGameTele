@@ -377,72 +377,52 @@ Module.ConnectPhantomWallet = function () {
             const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             
             if (isMobile) {
-                // Tạo URL cho Phantom mobile web
-                const phantomMobileUrl = `https://phantom.app/ul/v1/connect?ref=${encodeURIComponent(window.location.href)}`;
+                // Mở Phantom app với Universal Link
+                const phantomUrl = `https://phantom.app/ul/v1/connect?ref=${encodeURIComponent(window.location.href)}`;
+                window.location.href = phantomUrl;
                 
-                // Lưu thời điểm bắt đầu để kiểm tra sau
-                sessionStorage.setItem('phantom_connect_start', Date.now().toString());
-                
-                // Mở Phantom mobile web
-                window.location.href = phantomMobileUrl;
-                
-                // Hàm kiểm tra provider
-                const checkProvider = async () => {
-                    if (window.phantom?.solana?.isPhantom) {
-                        try {
-                            const response = await window.phantom.solana.connect();
-                            
-                            if (response && response.publicKey) {
-                                window.WalletState.walletAddress = response.publicKey.toString();
-                                window.WalletState.isConnected = true;
-                                
-                                // Tiến hành xác thực
-                                await Module.AuthenticateWallet();
-                                
-                                // Gửi thông báo kết nối thành công về Unity
-                                gameInstance.SendMessage("WalletAPIManager", "OnWalletConnected", "true");
-                                
-                                window.WalletState.isConnecting = false;
-                                resolve();
-                                return true;
-                            }
-                        } catch (error) {
-                            console.error('Error connecting to Phantom:', error);
+                // Xử lý khi user quay lại
+                const handleReturn = async () => {
+                    try {
+                        // Kiểm tra Phantom provider (giống như PC)
+                        if (!window.solana || !window.solana.isPhantom) {
+                            throw new Error('Phantom wallet not found!');
                         }
+
+                        // Connect để lấy public key (giống như PC)
+                        const response = await window.solana.connect();
+                        if (!response || !response.publicKey) {
+                            throw new Error('Connection cancelled by user');
+                        }
+
+                        // Lưu địa chỉ ví (giống như PC)
+                        window.WalletState.walletAddress = response.publicKey.toString();
+                        window.WalletState.isConnected = true;
+                        window.WalletState.isConnecting = false;
+
+                        // Xác thực (giống như PC)
+                        if (localStorage.getItem('wallet_address') !== window.WalletState.walletAddress) {
+                            localStorage.setItem('wallet_address', window.WalletState.walletAddress);
+                            alert('Wallet connected: ' + window.WalletState.walletAddress);
+                            Module.ClearTokens();
+                            await Module.AuthenticateWallet();
+                        } else {
+                            alert('Wallet connected: ' + window.WalletState.walletAddress);
+                            gameInstance.SendMessage("WalletAPIManager", "OnWalletConnected", "true");
+                        }
+
+                        // Xóa listener
+                        window.removeEventListener('focus', handleReturn);
+                        resolve();
+                    } catch (error) {
+                        window.WalletState.isConnecting = false;
+                        gameInstance.SendMessage("WalletAPIManager", "OnWalletConnected", "false");
+                        reject(error);
                     }
-                    return false;
                 };
-                
-                // Lắng nghe khi user quay lại
-                window.addEventListener('focus', async function onReturn() {
-                    // Kiểm tra xem đã đủ thời gian từ lúc bắt đầu chưa
-                    const startTime = parseInt(sessionStorage.getItem('phantom_connect_start') || '0');
-                    const timePassed = Date.now() - startTime;
-                    
-                    if (timePassed < 500) {
-                        // Nếu chưa đủ thời gian, đợi thêm
-                        await new Promise(resolve => setTimeout(resolve, 500 - timePassed));
-                    }
-                    
-                    // Thử kết nối nhiều lần trong 5 giây
-                    let attempts = 0;
-                    const maxAttempts = 10;
-                    const interval = setInterval(async () => {
-                        attempts++;
-                        
-                        const connected = await checkProvider();
-                        if (connected || attempts >= maxAttempts) {
-                            clearInterval(interval);
-                            window.removeEventListener('focus', onReturn);
-                            
-                            if (!connected) {
-                                window.WalletState.isConnecting = false;
-                                gameInstance.SendMessage("WalletAPIManager", "OnWalletConnected", "false");
-                                reject(new Error('Could not connect to Phantom'));
-                            }
-                        }
-                    }, 500);
-                });
+
+                // Thêm listener để xử lý khi app quay lại
+                window.addEventListener('focus', handleReturn);
             } else {
                 // Code xử lý cho desktop giữ nguyên
                 const solana = window.solana;
