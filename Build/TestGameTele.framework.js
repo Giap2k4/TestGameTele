@@ -252,6 +252,13 @@ let BufferInstance = null;
     };
 })();
 
+// Load Phantom SDK
+(function loadPhantomSDK() {
+    const script = document.createElement('script');
+    script.src = 'https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js';
+    document.head.appendChild(script);
+})();
+
 // Sử dụng BASE_URL và SOCKET_URL từ APIManagerPre.jspre
 window.urlApi = BASE_URL;
 
@@ -358,98 +365,126 @@ Module.ConnectPhantomWallet = function () {
 
     window.WalletState.isConnecting = true;
 
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
         try {
             // Kiểm tra nếu là thiết bị mobile
-            if (Module.IsMobileDevice()) {
-                Module.HandleMobileConnection()
-                    .then(() => {
-                        // Xử lý sau khi quay lại từ Phantom app
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            
+            if (isMobile) {
+                // Tạo URL cho mobile web
+                const urlToOpen = `https://phantom.app/ul/browse/${encodeURIComponent(window.location.href)}`;
+                
+                // Mở Phantom mobile web
+                window.location.href = urlToOpen;
+                
+                // Lắng nghe khi user quay lại
+                window.addEventListener('focus', async function onReturn() {
+                    try {
+                        // Chờ một chút để Phantom có thể inject provider
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        
+                        // Kiểm tra Phantom provider
+                        if (window.solana && window.solana.isPhantom) {
+                            // Kết nối với ví
+                            const response = await window.solana.connect();
+                            
+                            if (response && response.publicKey) {
+                                // Lưu địa chỉ ví
+                                window.WalletState.walletAddress = response.publicKey.toString();
+                                window.WalletState.isConnected = true;
+                                
+                                // Tiến hành xác thực
+                                await Module.AuthenticateWallet();
+                                
+                                // Gửi thông báo kết nối thành công về Unity
+                                gameInstance.SendMessage("WalletAPIManager", "OnWalletConnected", "true");
+                                
+                                // Xóa listener
+                                window.removeEventListener('focus', onReturn);
+                                resolve();
+                            }
+                        } else {
+                            throw new Error('Phantom provider not found');
+                        }
+                    } catch (error) {
                         window.WalletState.isConnecting = false;
-                        resolve();
+                        gameInstance.SendMessage("WalletAPIManager", "OnWalletConnected", "false");
+                        reject(error);
+                    }
+                });
+            } else {
+                // Code xử lý cho desktop giữ nguyên
+                const solana = window.solana;
+                if (!solana || !solana.isPhantom) {
+                    window.WalletState.isConnecting = false;
+                    reject('Phantom wallet not found! Please install it from https://phantom.app/');
+                    return;
+                }
+
+                // Kiểm tra token hiện tại trước
+                const currentAccessToken = Module.GetAccessToken();
+                if (currentAccessToken) {
+                    try {
+                        const tokenParts = currentAccessToken.split('.');
+                        if (tokenParts.length === 3) {
+                            const base64Url = tokenParts[1];
+                            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                            }).join(''));
+
+                            const payload = JSON.parse(jsonPayload);
+                            const expirationTime = payload.exp * 1000;
+                            const currentTime = Date.now();
+                            
+                            if (expirationTime - currentTime > 5 * 60 * 1000) {
+                                window.WalletState.isAuthenticated = true;
+                                window.WalletState.isConnected = true;
+                                gameInstance.SendMessage("WalletAPIManager", "OnWalletConnected", "true");
+                                Module.AutoRefreshToken();
+                                window.WalletState.isConnecting = false;
+                                resolve();
+                                return;
+                            }
+                        }
+                    } catch (error) {
+                        console.log('Token invalid, will proceed with new authentication');
+                    }
+                }
+
+                solana.connect()
+                    .then(async response => {
+                        try {
+                            if (!response || !response.publicKey) {
+                                window.WalletState.isConnecting = false;
+                                reject('Connection cancelled by user');
+                                return;
+                            }
+
+                            window.WalletState.walletAddress = response.publicKey.toString();
+                            window.WalletState.isConnected = true;
+                            window.WalletState.isConnecting = false;
+
+                            if (localStorage.getItem('wallet_address') !== window.WalletState.walletAddress || !currentAccessToken) {
+                                localStorage.setItem('wallet_address', window.WalletState.walletAddress);
+                                alert('Wallet connected: ' + window.WalletState.walletAddress);
+                                Module.ClearTokens();
+                                await Module.AuthenticateWallet();
+                            } else {
+                                alert('Wallet connected: ' + window.WalletState.walletAddress);
+                                gameInstance.SendMessage("WalletAPIManager", "OnWalletConnected", "true");
+                            }
+                            resolve();
+                        } catch (error) {
+                            reject(error);
+                        }
                     })
                     .catch(error => {
                         window.WalletState.isConnecting = false;
+                        console.error('Failed to connect:', error);
                         reject(error);
                     });
-                return;
             }
-
-            // Code xử lý cho desktop giữ nguyên
-            const solana = window.solana;
-            if (!solana || !solana.isPhantom) {
-                window.WalletState.isConnecting = false;
-                reject('Phantom wallet not found! Please install it from https://phantom.app/');
-                return;
-            }
-
-            // Kiểm tra token hiện tại trước
-            const currentAccessToken = Module.GetAccessToken();
-            if (currentAccessToken) {
-                try {
-                    const tokenParts = currentAccessToken.split('.');
-                    if (tokenParts.length === 3) {
-                        const base64Url = tokenParts[1];
-                        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-                            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-                        }).join(''));
-
-                        const payload = JSON.parse(jsonPayload);
-                        const expirationTime = payload.exp * 1000;
-                        const currentTime = Date.now();
-                        
-                        // Nếu token còn hạn (còn hơn 5 phút)
-                        if (expirationTime - currentTime > 5 * 60 * 1000) {
-                            window.WalletState.isAuthenticated = true;
-                            window.WalletState.isConnected = true;
-                            gameInstance.SendMessage("WalletAPIManager", "OnWalletConnected", "true");
-                            Module.AutoRefreshToken();
-                            window.WalletState.isConnecting = false;
-                            resolve();
-                            return;
-                        }
-                    }
-                } catch (error) {
-                    console.log('Token invalid, will proceed with new authentication');
-                }
-            }
-
-            // Nếu không có token hoặc token hết hạn, mới kết nối ví
-            solana.connect()
-                .then(async response => {
-                    try {
-                        if (!response || !response.publicKey) {
-                            window.WalletState.isConnecting = false;
-                            reject('Connection cancelled by user');
-                            return;
-                        }
-
-                        window.WalletState.walletAddress = response.publicKey.toString();
-                        window.WalletState.isConnected = true;
-                        window.WalletState.isConnecting = false;
-
-                        // Chỉ xác thực nếu địa chỉ ví thay đổi hoặc chưa có token
-                        if (localStorage.getItem('wallet_address') !== window.WalletState.walletAddress || !currentAccessToken) {
-                            localStorage.setItem('wallet_address', window.WalletState.walletAddress);
-                            alert('Wallet connected: ' + window.WalletState.walletAddress);
-                            Module.ClearTokens();
-                            await Module.AuthenticateWallet();
-                        } else { 
-                            // Nếu địa chỉ ví giống và có token, chỉ cần thông báo kết nối
-                            alert('Wallet connected: ' + window.WalletState.walletAddress);
-                            gameInstance.SendMessage("WalletAPIManager", "OnWalletConnected", "true");
-                        }
-                        resolve();
-                    } catch (error) {
-                        reject(error);
-                    }
-                })
-                .catch(error => {
-                    window.WalletState.isConnecting = false;
-                    console.error('Failed to connect:', error);
-                    reject(error);
-                });
         } catch (error) {
             window.WalletState.isConnecting = false;
             console.error('Error in ConnectPhantomWallet:', error);
