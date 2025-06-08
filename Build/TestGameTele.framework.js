@@ -367,10 +367,19 @@ Module.DecryptPhantomData = async function(encryptedData, phantomPublicKey) {
 // Sửa đổi hàm ConnectPhantomWallet để hỗ trợ mobile
 Module.ConnectPhantomWallet = function () {
     if (window.WalletState.isConnecting) {
-        return Promise.reject(new Error('Already connecting'));
+        // Reset trạng thái nếu đã quá 30 giây
+        const lastConnectTime = parseInt(sessionStorage.getItem('phantom_connect_time') || '0');
+        const currentTime = Date.now();
+        if (currentTime - lastConnectTime > 30000) {
+            window.WalletState.isConnecting = false;
+            sessionStorage.removeItem('phantom_connect_time');
+        } else {
+            return Promise.reject(new Error('Already connecting'));
+        }
     }
 
     window.WalletState.isConnecting = true;
+    sessionStorage.setItem('phantom_connect_time', Date.now().toString());
 
     return new Promise(async (resolve, reject) => {
         try {
@@ -380,14 +389,19 @@ Module.ConnectPhantomWallet = function () {
                 // Tạo nonce cho phiên kết nối
                 const nonce = await Module.GetNonce(window.WalletState.walletAddress || 'init');
                 
-                // Tạo URL cho Phantom mobile
+                // Tạo message để ký
+                const message = `Sign this message to authenticate with our service\nNonce: ${nonce}`;
+                
+                // Tạo URL cho Phantom mobile với yêu cầu ký message
                 const params = new URLSearchParams({
-                    nonce: nonce,
+                    dapp_encryption_public_key: ENCRYPTION_KEY,
                     redirect_url: window.location.href,
-                    app_url: window.location.origin
+                    app_url: window.location.origin,
+                    message: message,
+                    nonce: nonce
                 });
 
-                const phantomUrl = `https://phantom.app/ul/v1/connect?${params.toString()}`;
+                const phantomUrl = `https://phantom.app/ul/v1/signMessage?${params.toString()}`;
                 
                 // Xử lý khi user quay lại
                 const handleReturn = async () => {
@@ -411,13 +425,23 @@ Module.ConnectPhantomWallet = function () {
                                 window.WalletState.isAuthenticated = true;
                                 gameInstance.SendMessage("WalletAPIManager", "OnWalletConnected", "true");
                                 
+                                // Reset trạng thái
+                                window.WalletState.isConnecting = false;
+                                sessionStorage.removeItem('phantom_connect_time');
+                                
                                 // Xóa listener
                                 window.removeEventListener('focus', handleReturn);
                                 resolve();
                             }
+                        } else {
+                            // Reset trạng thái nếu không có signature hoặc account
+                            window.WalletState.isConnecting = false;
+                            sessionStorage.removeItem('phantom_connect_time');
                         }
                     } catch (error) {
+                        // Reset trạng thái khi có lỗi
                         window.WalletState.isConnecting = false;
+                        sessionStorage.removeItem('phantom_connect_time');
                         gameInstance.SendMessage("WalletAPIManager", "OnWalletConnected", "false");
                         reject(error);
                     }
@@ -434,6 +458,7 @@ Module.ConnectPhantomWallet = function () {
                 const solana = window.solana;
                 if (!solana || !solana.isPhantom) {
                     window.WalletState.isConnecting = false;
+                    sessionStorage.removeItem('phantom_connect_time');
                     reject('Phantom wallet not found! Please install it from https://phantom.app/');
                     return;
                 }
@@ -504,6 +529,7 @@ Module.ConnectPhantomWallet = function () {
             }
         } catch (error) {
             window.WalletState.isConnecting = false;
+            sessionStorage.removeItem('phantom_connect_time');
             console.error('Error in ConnectPhantomWallet:', error);
             reject(error);
         }
