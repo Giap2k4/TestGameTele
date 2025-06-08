@@ -226,14 +226,30 @@ const ENCRYPTION_KEY = "MY_SECRET_KEY";
 // const API_URL = "https://3edb-42-114-121-102.ngrok-free.app";
 // window.urlApi = API_URL;
 
-// Import TweetNaCl.js
-const nacl = (function() {
+// Khởi tạo biến để lưu instance của nacl và buffer
+let naclInstance = null;
+let BufferInstance = null;
+
+// Load thư viện Buffer
+(function loadBuffer() {
+    const scriptElement = document.createElement('script');
+    scriptElement.src = 'https://bundle.run/buffer@6.0.3';
+    document.head.appendChild(scriptElement);
+    scriptElement.onload = () => {
+        BufferInstance = window.buffer.Buffer;
+        console.log('Buffer loaded successfully');
+    };
+})();
+
+// Load thư viện TweetNaCl.js
+(function loadNaCl() {
     const scriptElement = document.createElement('script');
     scriptElement.src = 'https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl.min.js';
     document.head.appendChild(scriptElement);
-    return new Promise((resolve) => {
-        scriptElement.onload = () => resolve(window.nacl);
-    });
+    scriptElement.onload = () => {
+        naclInstance = window.nacl;
+        console.log('TweetNaCl.js loaded successfully');
+    };
 })();
 
 // Sử dụng BASE_URL và SOCKET_URL từ APIManagerPre.jspre
@@ -262,13 +278,27 @@ Module.IsMobileDevice = function() {
 // Thêm hàm xử lý deep linking cho mobile
 Module.HandleMobileConnection = async function() {
     try {
+        // Đợi cho đến khi cả hai thư viện được load
+        if (!naclInstance || !BufferInstance) {
+            console.log('Waiting for libraries to load...');
+            await new Promise((resolve) => {
+                const checkLibs = setInterval(() => {
+                    if (naclInstance && BufferInstance) {
+                        clearInterval(checkLibs);
+                        resolve();
+                    }
+                }, 100);
+            });
+        }
+
+        console.log('Libraries are ready');
         const isAndroid = /Android/i.test(navigator.userAgent);
         const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
         
         // Tạo URL cho deep link
-        const dappKeyPair = nacl.box.keyPair();
-        const sharedSecretDapp = Buffer.from(dappKeyPair.secretKey).toString('hex');
-        const dappPublicKey = Buffer.from(dappKeyPair.publicKey).toString('hex');
+        const dappKeyPair = naclInstance.box.keyPair();
+        const sharedSecretDapp = BufferInstance.from(dappKeyPair.secretKey).toString('hex');
+        const dappPublicKey = BufferInstance.from(dappKeyPair.publicKey).toString('hex');
         
         // Lưu secret key để sau này giải mã
         sessionStorage.setItem('dapp_secret_key', sharedSecretDapp);
@@ -319,18 +349,18 @@ Module.HandleMobileConnection = async function() {
                 }
                 
                 // Giải mã data
-                const decryptedData = nacl.box.open(
-                    Buffer.from(data, 'hex'),
-                    Buffer.from(nonce, 'hex'),
-                    Buffer.from(phantomEncryptionPublicKey, 'hex'),
-                    Buffer.from(dappSecretKey, 'hex')
+                const decryptedData = naclInstance.box.open(
+                    BufferInstance.from(data, 'hex'),
+                    BufferInstance.from(nonce, 'hex'),
+                    BufferInstance.from(phantomEncryptionPublicKey, 'hex'),
+                    BufferInstance.from(dappSecretKey, 'hex')
                 );
                 
                 if (!decryptedData) {
                     throw new Error('Failed to decrypt data');
                 }
                 
-                const decodedData = JSON.parse(Buffer.from(decryptedData).toString());
+                const decodedData = JSON.parse(BufferInstance.from(decryptedData).toString());
                 console.log('Decoded data:', decodedData);
                 
                 // Lưu địa chỉ ví
