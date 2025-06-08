@@ -278,122 +278,61 @@ Module.IsMobileDevice = function() {
 // Thêm hàm xử lý deep linking cho mobile
 Module.HandleMobileConnection = async function() {
     try {
-        // Đợi cho đến khi cả hai thư viện được load
-        if (!naclInstance || !BufferInstance) {
-            console.log('Waiting for libraries to load...');
-            await new Promise((resolve) => {
-                const checkLibs = setInterval(() => {
-                    if (naclInstance && BufferInstance) {
-                        clearInterval(checkLibs);
-                        resolve();
-                    }
-                }, 100);
-            });
-        }
-
-        console.log('Libraries are ready');
         const isAndroid = /Android/i.test(navigator.userAgent);
-        const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
         
-        // Tạo URL cho deep link
-        const dappKeyPair = naclInstance.box.keyPair();
-        const sharedSecretDapp = BufferInstance.from(dappKeyPair.secretKey).toString('hex');
-        const dappPublicKey = BufferInstance.from(dappKeyPair.publicKey).toString('hex');
+        // Tạo một unique ID cho phiên kết nối
+        const sessionId = Math.random().toString(36).substring(2, 15);
         
-        // Lưu secret key để sau này giải mã
-        sessionStorage.setItem('dapp_secret_key', sharedSecretDapp);
-        
-        // Tạo URL parameters
-        const params = new URLSearchParams({
-            dapp_encryption_public_key: dappPublicKey,
-            redirect_url: window.location.href,
-            app_url: window.location.origin,
-            cluster: 'mainnet'  // hoặc 'devnet' tùy môi trường của bạn
-        });
+        // Lưu callback URL
+        const callbackUrl = encodeURIComponent(`${window.location.origin}${window.location.pathname}?session=${sessionId}`);
         
         // Tạo deep link URL
-        const deepLink = isAndroid 
-            ? `phantom://ul/v1/connect?${params.toString()}`
-            : `https://phantom.app/ul/v1/connect?${params.toString()}`;
-            
-        console.log('Opening Phantom with URL:', deepLink);
+        let deepLink;
+        if (isAndroid) {
+            deepLink = `phantom://ul/v1/connect?app_url=${window.location.origin}&redirect_url=${callbackUrl}&app_cluster=mainnet`;
+        } else {
+            deepLink = `https://phantom.app/ul/v1/connect?app_url=${window.location.origin}&redirect_url=${callbackUrl}&app_cluster=mainnet`;
+        }
+
+        // Lưu session ID để kiểm tra khi callback
+        sessionStorage.setItem('phantom_session', sessionId);
         
-        // Thêm listener để xử lý khi user quay lại từ Phantom
+        // Thêm listener để xử lý khi user quay lại
         const handleReturn = async () => {
-            console.log('App returned from Phantom');
+            const currentSessionId = sessionStorage.getItem('phantom_session');
+            const urlParams = new URLSearchParams(window.location.search);
+            const returnedSession = urlParams.get('session');
+            const account = urlParams.get('account');
             
-            try {
-                const url = new URL(window.location.href);
-                const params = new URLSearchParams(url.search);
-                
-                // Lấy data từ URL parameters
-                const phantomEncryptionPublicKey = params.get('phantom_encryption_public_key');
-                const nonce = params.get('nonce');
-                const data = params.get('data');
-                
-                if (!phantomEncryptionPublicKey || !nonce || !data) {
-                    console.log('Missing required parameters');
-                    return;
-                }
-                
-                console.log('Received data from Phantom:', {
-                    phantomEncryptionPublicKey,
-                    nonce,
-                    data
-                });
-                
-                // Lấy secret key đã lưu
-                const dappSecretKey = sessionStorage.getItem('dapp_secret_key');
-                if (!dappSecretKey) {
-                    throw new Error('No dapp secret key found');
-                }
-                
-                // Giải mã data
-                const decryptedData = naclInstance.box.open(
-                    BufferInstance.from(data, 'hex'),
-                    BufferInstance.from(nonce, 'hex'),
-                    BufferInstance.from(phantomEncryptionPublicKey, 'hex'),
-                    BufferInstance.from(dappSecretKey, 'hex')
-                );
-                
-                if (!decryptedData) {
-                    throw new Error('Failed to decrypt data');
-                }
-                
-                const decodedData = JSON.parse(BufferInstance.from(decryptedData).toString());
-                console.log('Decoded data:', decodedData);
+            if (returnedSession === currentSessionId && account) {
+                // Xóa session
+                sessionStorage.removeItem('phantom_session');
                 
                 // Lưu địa chỉ ví
-                if (decodedData.public_key) {
-                    window.WalletState.walletAddress = decodedData.public_key;
-                    window.WalletState.isConnected = true;
-                    
-                    // Tiến hành xác thực
-                    await Module.AuthenticateWallet();
-                    
-                    // Gửi thông báo kết nối thành công về Unity
-                    gameInstance.SendMessage("WalletAPIManager", "OnWalletConnected", "true");
-                }
+                window.WalletState.walletAddress = account;
+                window.WalletState.isConnected = true;
                 
-                // Xóa secret key sau khi sử dụng
-                sessionStorage.removeItem('dapp_secret_key');
+                // Tiến hành xác thực
+                try {
+                    await Module.AuthenticateWallet();
+                    gameInstance.SendMessage("WalletAPIManager", "OnWalletConnected", "true");
+                } catch (error) {
+                    gameInstance.SendMessage("WalletAPIManager", "OnWalletConnected", "false");
+                }
                 
                 // Remove listener
                 window.removeEventListener('focus', handleReturn);
-            } catch (error) {
-                console.error('Error handling return from Phantom:', error);
-                gameInstance.SendMessage("WalletAPIManager", "OnWalletConnected", "false");
             }
         };
         
-        // Thêm listener để xử lý khi app quay lại
+        // Thêm listener
         window.addEventListener('focus', handleReturn);
         
         // Mở Phantom app
         window.location.href = deepLink;
         
     } catch (error) {
-        console.error('Error in HandleMobileConnection:', error);
+        gameInstance.SendMessage("WalletAPIManager", "OnWalletConnected", "false");
         throw error;
     }
 };
