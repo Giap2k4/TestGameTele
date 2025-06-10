@@ -243,6 +243,11 @@
       }
       resizeCanvas();
 
+      // Lắng nghe sự kiện resize và zoom để cập nhật lại kích thước canvas
+      window.addEventListener("resize", resizeCanvas);
+      window.visualViewport.addEventListener("resize", resizeCanvas);
+      window.visualViewport.addEventListener("scroll", resizeCanvas);
+      
       if (window.ResizeObserver) {
         const observer = new ResizeObserver(resizeCanvas);
         observer.observe(document.body);
