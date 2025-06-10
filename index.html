@@ -236,17 +236,17 @@
         const height = window.innerHeight - 40; // trừ chiều cao footer
         const width = height * aspect;
 
+        // Lấy tỷ lệ zoom hiện tại
+        const zoom = window.devicePixelRatio;
+
+        // Điều chỉnh kích thước canvas dựa trên tỷ lệ zoom
         canvas.style.height = height + "px";
         canvas.style.width = width + "px";
-        canvas.width = width;
-        canvas.height = height;
+        canvas.width = width * zoom;
+        canvas.height = height * zoom;
       }
       resizeCanvas();
 
-      // Lắng nghe sự kiện resize và zoom để cập nhật lại kích thước canvas
-      window.addEventListener("resize", resizeCanvas);
-      window.visualViewport.addEventListener("resize", resizeCanvas);
-      window.visualViewport.addEventListener("scroll", resizeCanvas);
       
       if (window.ResizeObserver) {
         const observer = new ResizeObserver(resizeCanvas);
