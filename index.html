@@ -243,9 +243,8 @@
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
         container.className = "unity-mobile";
         canvas.className = "unity-mobile";
-      } else {
-        resizeCanvas();
-      }
+      } 
+      resizeCanvas();
       window.addEventListener("resize", resizeCanvas);
 
       loadingBar.style.display = "block";
