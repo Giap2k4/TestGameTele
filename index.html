@@ -231,23 +231,21 @@
         showBanner: unityShowBanner,
       };
 
-      function resizeCanvas() {
-        const aspectRatio = 292 / 518;
-        const containerWidth = window.innerWidth;
-        const containerHeight = window.innerHeight;
+       function resizeCanvas() {
+        const aspect = 292 / 518;
+        const height = window.innerHeight - 40; // trừ chiều cao footer
+        const width = height * aspect;
 
-        let newWidth = containerHeight * aspectRatio;
-        let newHeight = containerHeight;
+        canvas.style.height = height + "px";
+        canvas.style.width = width + "px";
+        canvas.width = width;
+        canvas.height = height;
+      }
+      resizeCanvas();
 
-        if (newWidth > containerWidth) {
-          newWidth = containerWidth;
-          newHeight = newWidth / aspectRatio;
-        }
-
-        canvas.style.width = newWidth + "px";
-        canvas.style.height = newHeight + "px";
-        canvas.width = newWidth;
-        canvas.height = newHeight;
+      if (window.ResizeObserver) {
+        const observer = new ResizeObserver(resizeCanvas);
+        observer.observe(document.body);
       }
 
 
