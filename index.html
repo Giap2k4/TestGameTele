@@ -230,15 +230,24 @@
       };
 
       function resizeCanvas() {
-        const aspect = 292 / 518;
-        const height = window.innerHeight - 40; // trừ chiều cao footer
-        const width = height * aspect;
+        const aspectRatio = 292 / 518;
+        const containerWidth = window.innerWidth;
+        const containerHeight = window.innerHeight;
 
-        canvas.style.height = height + "px";
-        canvas.style.width = width + "px";
-        canvas.width = width;
-        canvas.height = height;
+        let newWidth = containerHeight * aspectRatio;
+        let newHeight = containerHeight;
+
+        if (newWidth > containerWidth) {
+          newWidth = containerWidth;
+          newHeight = newWidth / aspectRatio;
+        }
+
+        canvas.style.width = newWidth + "px";
+        canvas.style.height = newHeight + "px";
+        canvas.width = newWidth;
+        canvas.height = newHeight;
       }
+
 
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
         container.className = "unity-mobile";
