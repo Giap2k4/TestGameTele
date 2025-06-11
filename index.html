@@ -231,7 +231,9 @@
         showBanner: unityShowBanner,
       };
 
-       function resizeCanvas() {
+      window.devicePixelRatio = Math.max(2, window.devicePixelRatio || 1);
+
+      function resizeCanvas() {
         const aspect = 292 / 518;
         const height = window.innerHeight - 40; // trừ chiều cao footer
         const width = height * aspect;
