@@ -136,6 +136,20 @@
     <script src="https://unpkg.com/tweetnacl-util@0.15.1/nacl-util.min.js"></script>
     <!-- CHỈ load library, không init -->
     <script src="https://unpkg.com/@privy-io/js-sdk@latest/dist/index.js"></script>
+    <script>
+      window.privyReady = false;
+      window.addEventListener('DOMContentLoaded', function() {
+          // Đợi một chút để đảm bảo Privy đã load
+          setTimeout(() => {
+              if (typeof Privy !== 'undefined') {
+                  window.privyReady = true;
+                  console.log('Privy SDK loaded successfully');
+              } else {
+                  console.error('Privy SDK failed to load');
+              }
+          }, 1000);
+      });
+    </script>
     
     <style>
       html, body {
