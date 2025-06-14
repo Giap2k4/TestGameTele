@@ -134,22 +134,23 @@
         <!-- Thêm trước tag </head> -->
     <script src="https://unpkg.com/tweetnacl@1.0.3/nacl-fast.min.js"></script>
     <script src="https://unpkg.com/tweetnacl-util@0.15.1/nacl-util.min.js"></script>
-    <!-- CHỈ load library, không init -->
-    <script src="https://unpkg.com/@privy-io/js-sdk@latest/dist/index.js"></script>
-    <script>
-      window.privyReady = false;
-      window.addEventListener('DOMContentLoaded', function() {
-          // Đợi một chút để đảm bảo Privy đã load
-          setTimeout(() => {
-              if (typeof Privy !== 'undefined') {
-                  window.privyReady = true;
-                  console.log('Privy SDK loaded successfully');
-              } else {
-                  console.error('Privy SDK failed to load');
-              }
-          }, 1000);
-      });
-    </script>
+    <script src="https://unpkg.com/@privy-io/js-sdk@1.58.0/dist/index.js" 
+        onload="console.log('✅ Privy script loaded')" 
+        onerror="console.error('❌ Privy script failed to load')"></script>
+<script>
+window.privyReady = false;
+window.addEventListener('DOMContentLoaded', function() {
+    // Tăng thời gian đợi
+    setTimeout(() => {
+        if (typeof Privy !== 'undefined') {
+            window.privyReady = true;
+            console.log('✅ Privy SDK ready');
+        } else {
+            console.error('❌ Privy SDK failed to load - check network connection');
+        }
+    }, 2000); // Tăng từ 1000ms lên 2000ms
+});
+</script>
     
     <style>
       html, body {
