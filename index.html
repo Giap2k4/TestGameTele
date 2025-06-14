@@ -134,34 +134,6 @@
         <!-- Thêm trước tag </head> -->
     <script src="https://unpkg.com/tweetnacl@1.0.3/nacl-fast.min.js"></script>
     <script src="https://unpkg.com/tweetnacl-util@0.15.1/nacl-util.min.js"></script>
-
-<!-- privy -->
-<script src="https://cdn.jsdelivr.net/npm/@privy-io/js-sdk-core@0.50.11/dist/esm/index.min.js" 
-        onload="console.log('✅ Privy script loaded')" 
-        onerror="console.error('❌ Privy script failed to load')"></script>
-<script>
-window.privyReady = false;
-window.addEventListener('DOMContentLoaded', function() {
-    setTimeout(() => {
-        // Kiểm tra nhiều cách có thể Privy được expose
-        if (typeof Privy !== 'undefined') {
-            window.privyReady = true;
-            console.log('✅ Privy SDK ready');
-        } else if (typeof window.Privy !== 'undefined') {
-            window.privyReady = true;
-            console.log('✅ Privy SDK ready (window.Privy)');
-        } else if (typeof PrivySDK !== 'undefined') {
-            window.privyReady = true;
-            console.log('✅ Privy SDK ready (PrivySDK)');
-        } else {
-            console.error('❌ Privy SDK failed to load');
-            console.log('Available globals:', Object.keys(window).filter(k => k.toLowerCase().includes('privy')));
-        }
-    }, 2000);
-});
-</script> 
-
-
     
     <style>
       html, body {
