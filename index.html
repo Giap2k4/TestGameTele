@@ -295,13 +295,15 @@
     <script src="google-auth-bundle.js"></script>
 
     <script>
-      window.addEventListener('load', () => {
+      window.addEventListener('DOMContentLoaded', () => {
         const host = document.getElementById('google-auth-root')
                   || document.body.appendChild(Object.assign(document.createElement('div'),{id:'google-auth-root'}));
 
+        /* LẤY ĐÚNG component: lấy .default nếu có, ngược lại lấy chính object */
+        const Comp = PrivyReact.default || PrivyReact;
+
         const root = ReactDOM.createRoot(host);
-        const Comp = PrivyReact.default || PrivyReact;   // chọn đúng export
-        root.render(React.createElement(Comp));
+        root.render(React.createElement(Comp));   // << dùng Comp
       });
     </script>
 
