@@ -297,20 +297,16 @@
     
     <script src="google-auth-bundle.js"></script>
     <script>
-      // Khởi tạo Google Auth sau khi Unity load xong
-      window.addEventListener('load', function() {
-          console.log('🔄 Initializing Google Auth...');
-          
-          setTimeout(function() {
-              if (typeof GoogleAuth !== 'undefined' && GoogleAuth.default && typeof ReactDOM !== 'undefined') {
-                  const authRoot = document.getElementById('google-auth-root');
-                  if (authRoot) {
-                      ReactDOM.render(React.createElement(GoogleAuth.default), authRoot);
-                      console.log('✅ Google Auth React component mounted successfully!');
-                  }
-              }
-          }, 2000);
+      window.addEventListener('load', () => {
+        const rootDiv = document.getElementById('google-auth-root') || 
+                        document.body.appendChild(document.createElement('div'));
+        rootDiv.id = 'google-auth-root';
+
+        // React 18 API
+        const root = ReactDOM.createRoot(rootDiv);
+        root.render(React.createElement(PrivyReact.default));  // <-- dùng PrivyReact
       });
+    </script>
 
       // Debug function
       window.testGoogleAuth = function() {
