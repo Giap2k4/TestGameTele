@@ -296,16 +296,15 @@
 
     <script>
       window.addEventListener('load', () => {
-        console.log('🔄 Mounting Privy React component');
+        const rootDiv = document.getElementById('google-auth-root')
+                      || document.body.appendChild(Object.assign(document.createElement('div'), { id:'google-auth-root' }));
 
-        // chỗ gắn React
-        const rootDiv = document.getElementById('google-auth-root') ||
-                        document.body.appendChild(document.createElement('div'));
-        rootDiv.id = 'google-auth-root';
-
-        // React 18 API
         const root = ReactDOM.createRoot(rootDiv);
-        root.render(React.createElement(PrivyReact.default));   // <-- đổi sang PrivyReact
+
+        // Nếu bundle xuất trực tiếp component thì dùng PrivyReact,
+        // nếu sau này đổi webpack kiểu khác thì PrivyReact.default vẫn an toàn.
+        const Component = PrivyReact.default || PrivyReact;
+        root.render(React.createElement(Component));
       });
     </script>
 
