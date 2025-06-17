@@ -134,8 +134,10 @@
         <!-- Thêm trước tag </head> -->
     <script src="https://unpkg.com/tweetnacl@1.0.3/nacl-fast.min.js"></script>
     <script src="https://unpkg.com/tweetnacl-util@0.15.1/nacl-util.min.js"></script>
-    <!-- Thay vì unpkg cũ, dùng jsdelivr -->
-    <script src="https://cdn.jsdelivr.net/npm/@privy-io/js-sdk-core@latest/dist/index.js"></script>
+
+    <!-- React và ReactDOM từ CDN -->
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     
     <style>
       html, body {
@@ -197,6 +199,9 @@
       <div id="unity-fullscreen-button"></div>
       <!-- <div id="unity-build-title">GameTele</div> -->
     </div>
+
+    <!-- Container cho Google Auth React Component -->
+    <div id="google-auth-root" style="display: none;"></div>
 
     <script>
       var container = document.querySelector("#unity-container");
@@ -289,15 +294,28 @@
       document.body.appendChild(script);
     </script>
 
+    
+    <script src="google-auth-bundle.js"></script>
     <script>
-        // Initialize when SDK is loaded
-        window.addEventListener('load', function() {
-            if (typeof Privy !== 'undefined') {
-                console.log('✅ Privy SDK loaded successfully');
-            } else {
-                console.error('❌ Privy SDK failed to load');
-            }
-        });
+      // Khởi tạo Google Auth sau khi Unity load xong
+      window.addEventListener('load', function() {
+          console.log('🔄 Initializing Google Auth...');
+          
+          setTimeout(function() {
+              if (typeof GoogleAuth !== 'undefined' && GoogleAuth.default && typeof ReactDOM !== 'undefined') {
+                  const authRoot = document.getElementById('google-auth-root');
+                  if (authRoot) {
+                      ReactDOM.render(React.createElement(GoogleAuth.default), authRoot);
+                      console.log('✅ Google Auth React component mounted successfully!');
+                  }
+              }
+          }, 2000);
+      });
+
+      // Debug function
+      window.testGoogleAuth = function() {
+          console.log('GoogleAuth ready:', typeof window.Module?.ConnectGoogleWallet);
+      };
     </script>
   </body>
 </html>
