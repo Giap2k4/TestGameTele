@@ -296,15 +296,12 @@
 
     <script>
       window.addEventListener('load', () => {
-        const rootDiv = document.getElementById('google-auth-root')
-                      || document.body.appendChild(Object.assign(document.createElement('div'), { id:'google-auth-root' }));
+        const host = document.getElementById('google-auth-root')
+                  || document.body.appendChild(Object.assign(document.createElement('div'),{id:'google-auth-root'}));
 
-        const root = ReactDOM.createRoot(rootDiv);
-
-        // Nếu bundle xuất trực tiếp component thì dùng PrivyReact,
-        // nếu sau này đổi webpack kiểu khác thì PrivyReact.default vẫn an toàn.
-        const Component = PrivyReact.default || PrivyReact;
-        root.render(React.createElement(Component));
+        const root = ReactDOM.createRoot(host);
+        const Comp = PrivyReact.default || PrivyReact;   // chọn đúng export
+        root.render(React.createElement(Comp));
       });
     </script>
 
