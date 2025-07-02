@@ -144,15 +144,21 @@
       window.addEventListener("resize", resizeCanvas);
 
       // loadingBar.style.display = "block";
+      if (loadingBar) loadingBar.style.display = "block";
+
 
       var script = document.createElement("script");
       script.src = loaderUrl;
       script.onload = () => {
         createUnityInstance(canvas, config, (progress) => {
-          progressBarFull.style.width = 100 * progress + "%";
+          // progressBarFull.style.width = 100 * progress + "%";
+          if (progressBarFull) progressBarFull.style.width = 100 * progress + "%";
+
         }).then((unityInstance) => {
           window.gameInstance = unityInstance;
           // loadingBar.style.display = "none";
+          if (loadingBar) loadingBar.style.display = "none";
+
           fullscreenButton.onclick = () => {
             unityInstance.SetFullscreen(1);
           };
